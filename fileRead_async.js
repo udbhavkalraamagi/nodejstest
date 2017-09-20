@@ -130,7 +130,7 @@ rl.question('\nDo you want to search in camera/refrigerator/television ?(c/r/t)'
 		for(var file_index=0; file_index<files.length; file_index++){
 		  var filename = files[file_index].toString()
 
-		  async function promisableReadFile(filename){
+		  function promisableReadFile(filename){
 		  	return new Promise((resolve,reject)=>{
 		  		fs.readFile(filename,(err,data)=>{
 		  			if(err) reject(err);
