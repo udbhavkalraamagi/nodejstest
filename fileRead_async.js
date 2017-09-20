@@ -73,9 +73,9 @@ function get_match_indexes(filename) {
 async function get_data_from_file(filename, flags){
 	var data = await get_match_indexes(filename)
 
-    process.stdout.write(`\nfile: ${filename}\n`)
-    
-    file_content = data.toString();
+	process.stdout.write(`\nfile: ${filename}\n`)
+
+	file_content = data.toString();
 	var lines = file_content.split("\n");
 	var lines_count = lines.length
 	let anymatch = 0;
@@ -133,7 +133,7 @@ rl.question('\nDo you want to search in camera/refrigerator/television ?(c/r/t)'
 
     for(var file_index=0; file_index<files.length; file_index++){
       var filename = files[file_index].toString()
-      
+
 	  hash[filename] = {};
       get_data_from_file(filename, flags)
     }
