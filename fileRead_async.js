@@ -13,15 +13,15 @@ const rl = readline.createInterface({
 
 class Electronics {
   constructor(category){
-	this.category = category
-	console.log('Category added-\'' + category + "'")
+    this.category = category
+    console.log('Category added-\'' + category + "'")
   }
 
   add_file(filename){
-  	if(this.files)
-  	  this.files.push(filename)
-  	else
-  	  this.files = [filename]
+    if(this.files)
+      this.files.push(filename)
+    else
+      this.files = [filename]
   }
 
 
@@ -59,27 +59,30 @@ refrigerator.add_file("double_door.txt");
 // refrigerator.get_files("print")
 // television.get_files("print")
 
-hash = {}
+var hash = {}
 
-async function get_matches(filename, flags){
-  await fs.readFile(filename, (err, data)=>{
-	hash[filename] = {}
+function get_match_indexes(filename) {
+  return new Promise(resolve => {
+    fs.readFile(filename,(err,data)=>{
+	   if(err) reject(err);
+	   resolve(data);
+	 });
+  });
+}
 
-    if(err){
-      console.log("Error reading file")
-  	return;
-    }
-		
-	process.stdout.write(`\nfile_name : ${filename}:`);
-	file_content = data.toString();
+async function get_data_from_file(filename, flags){
+	var data = await get_match_indexes(filename)
 
+    process.stdout.write(`\nfile: ${filename}\n`)
+    
+    file_content = data.toString();
 	var lines = file_content.split("\n");
 	var lines_count = lines.length
-	let anymatch = 0
+	let anymatch = 0;
 
 	for(var line_number=1; line_number<=lines_count; line_number++){
 	  hash[filename][line_number] = []
-		  			
+		  		
 	  var myRegexp = new RegExp(to_search, flags)
 	  var result, last_index = -1, last_line = -1
 
@@ -99,8 +102,7 @@ async function get_matches(filename, flags){
 	if(anymatch == 0) 	
 	  process.stdout.write("\nNo matches !")
 	console.log()
-		
-  	});
+
 }
 
 
@@ -131,20 +133,12 @@ rl.question('\nDo you want to search in camera/refrigerator/television ?(c/r/t)'
 
     for(var file_index=0; file_index<files.length; file_index++){
       var filename = files[file_index].toString()
-
-      function promisableReadFile(filename){
-        return new Promise((resolve,reject)=>{
-  		  fs.readFile(filename,(err,data)=>{
-  	        if(err) reject(err);
-  		      resolve(data);
-  		  });			  
-      })};
-
-      var data = promisableReadFile(filename);
-      get_matches(filename, flags)
+      
+	  hash[filename] = {};
+      get_data_from_file(filename, flags)
     }
 
     rl.close();
     });
-  });			//end of text search
+  });  		  		//end of text search
 });
