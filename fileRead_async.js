@@ -71,37 +71,38 @@ function get_match_indexes(filename) {
 }
 
 async function get_data_from_file(filename, flags){
-	var data = await get_match_indexes(filename)
+  var data = await get_match_indexes(filename)
 
-	process.stdout.write(`\nfile: ${filename}\n`)
+  process.stdout.write(`\nfile: ${filename}\n`)
 
-	file_content = data.toString();
-	var lines = file_content.split("\n");
-	var lines_count = lines.length
-	let anymatch = 0;
+  file_content = data.toString();
+  var lines = file_content.split("\n");
+  var lines_count = lines.length
+  let anymatch = 0;
+  
+  for(var line_number=1; line_number<=lines_count; line_number++){
+    hash[filename][line_number] = []
+  	  		
+    var myRegexp = new RegExp(to_search, flags)
+    var result, last_index = -1, last_line = -1
+    while ( (result = myRegexp.exec(lines[line_number-1])) ) {
+  	  if(last_index == result.index)
+  		break;
+  	  anymatch = 1
+      hash[filename][line_number].push(result.index);
+   
+      if(line_number != last_line)
+        process.stdout.write(`\nline number:${line_number} :- "${lines[line_number-1]}" with matching index: ${result.index}`);
+      else
+        process.stdout.write(`, ${result.index}`);
+   
+      last_line = line_number
+      last_index = result.index
+  }
 
-	for(var line_number=1; line_number<=lines_count; line_number++){
-	  hash[filename][line_number] = []
-		  		
-	  var myRegexp = new RegExp(to_search, flags)
-	  var result, last_index = -1, last_line = -1
-
-	  while ( (result = myRegexp.exec(lines[line_number-1])) ) {
-	  	if(last_index == result.index)
-	  		break;
-	  	anymatch = 1
-	    hash[filename][line_number].push(result.index);
-	    if(line_number != last_line)
-	      process.stdout.write(`\nline number:${line_number} :- "${lines[line_number-1]}" with matching index: ${result.index}`);
-	    else
-	      process.stdout.write(`, ${result.index}`);
-	  	last_line = line_number
-	  	last_index = result.index
-	  }
-	}
-	if(anymatch == 0) 	
-	  process.stdout.write("\nNo matches !")
-	console.log()
+  if(anymatch == 0) 	
+    process.stdout.write("\nNo matches !")
+  console.log()
 
 }
 
