@@ -98,8 +98,9 @@ async function get_data_from_file(filename, flags){
    
       last_line = line_number
       last_index = result.index
+    }
   }
-
+  
   if(anymatch == 0) 	
     process.stdout.write("\nNo matches !")
   console.log()
