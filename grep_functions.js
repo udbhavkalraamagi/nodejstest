@@ -1,8 +1,7 @@
+#!/usr/local/bin/node
 const fs = require('fs');
-const http = require('http');
-const hostname = '127.0.0.1';
-const port = 3000;
-
+// var options = require('options');
+var options = require('options-parser');
 var hash = {}
 var final_result_hash = {}
 
@@ -17,7 +16,8 @@ function call_help(arg){
   }
 
   if(arg == 'help'){
-  	c('Execture like : node grep_functions.js <optional -n/-i/-g> pattern_text_string fileName/folderName)');
+  	c('Execute like : node grep_functions.js <optional -n/-i/-g> pattern_text_string fileName/folderName)');
+  	process.exit(1);
   }
 }
 
@@ -31,9 +31,9 @@ function get_match_indexes(filename) {
   });
 }
 
-async function get_data_from_file(filename, pattern, flags, is_this_a_file){
-
-  var data = await get_match_indexes(filename)
+async function get_data_from_file(filename, pattern, flags, files_count){
+  
+  var data = await get_match_indexes(filename);
 
   var local_flags = "g"  
   if(flags['i'] == 1)
@@ -52,13 +52,13 @@ async function get_data_from_file(filename, pattern, flags, is_this_a_file){
     var result, last_index = -1, last_line = -1
     if ( (result = myRegexp.exec(lines[line_number-1]))) {
     	if(flags['n'] == 1){
-    		if(is_this_a_file == 0)
+    		if(files_count > 1)
     		  c(filename+":"+line_number+":"+lines[line_number-1].toString())
     		else
     		  c(line_number+":"+lines[line_number-1].toString())
     	}
     	else{
-    		if(is_this_a_file == 0)
+    		if(files_count > 1)
     		  c(filename+":"+lines[line_number-1].toString())
     		else
     		  c(lines[line_number-1].toString())
@@ -68,63 +68,39 @@ async function get_data_from_file(filename, pattern, flags, is_this_a_file){
 	 
 }
 
-function dir_read(dirname, pattern, flags){
-  fs.readdir(dirname, function( err, files ) {
-    if(err){
-      console.error( "Could not list the directory.", err );
-      process.exit( 1 );
-    }
-        
-    files.forEach(function(file, index){
-      if(! (fs.lstatSync(dirname + "/" + file).isDirectory()) ){
-        get_data_from_file(dirname + "/" + file, pattern, flags, 0)
-      }
-    });  
-  });
-}
-
 function main(){
-  var commandArguments = process.argv.slice(2);
-  var options = commandArguments.slice(0, -2);
-  var flags = {};
 
-  if(commandArguments.length < 2){
+  var result = options.parse({
+	  help:   { short: 'h', flag: true},
+	  line:   { short: 'n', flag: true},
+	  ignore: { short: 'i', flag: true },
+  });
+ 
+  if(result.args.length < 2){
     call_help('args');
   }
 
-  for(var i = 0; i < options.length; i++){
+  var pattern = result.args[0].toString();
+  
+  var flags = {'n':0, 'i':0};
 
-    switch(options[i]){
-      case '--help':
-        call_help('help');
-        break;
-      case '-h':
-    	call_help('help');
-    	break;
-      case '-i':
-      	flags['i'] = 1;
-      	break;
-      case '-n':
-    	flags['n'] = 1;
-    	break;
-      case '-ni':
-    	flags['n'] = 1;
-    	flags['i'] = 1;
-    	break;
-      case '-in':
-      	flags['n'] = 1;
-      	flags['i'] = 1;
-    	break;
-    }
+  if(result.opt.help == true)
+  	call_help('help')
+  if(result.opt.ignore == true)
+    flags['i'] = 1;
+  if(result.opt.line == true)
+  	flags['n'] = 1;
+
+  var files_count = result.args.length-1;
+
+  for(var ind=1; ind<result.args.length; ++ind){
+  	var file = result.args[ind]
+  	if((fs.lstatSync(file).isDirectory()))
+      c(`grep: ${file}: Is a directory`);
+    else
+  		get_data_from_file(file, pattern, flags, files_count);
   }
 
-  var list_of_files = [];
-  var pattern = commandArguments[commandArguments.length-2].toString();
-
-  if(fs.lstatSync(commandArguments[commandArguments.length-1]).isDirectory())
-  	dir_read(commandArguments[commandArguments.length-1], pattern, flags, 0);
-  else
-  	get_data_from_file(commandArguments[commandArguments.length-1], pattern, flags, 1);
 }
 
 main()
