@@ -7,7 +7,7 @@ var hash = {}
 var final_result_hash = {}
 
 function c(a){
-	console.log(a);
+  console.log(a);
 }
 
 function call_help(arg){
@@ -69,18 +69,18 @@ async function get_data_from_file(filename, pattern, flags, is_this_a_file){
 }
 
 function dir_read(dirname, pattern, flags){
-	fs.readdir(dirname, function( err, files ) {
-        if(err){
-          console.error( "Could not list the directory.", err );
-          process.exit( 1 );
-        }
+  fs.readdir(dirname, function( err, files ) {
+    if(err){
+      console.error( "Could not list the directory.", err );
+      process.exit( 1 );
+    }
         
-        files.forEach(function(file, index){
-          if(! (fs.lstatSync(dirname + "/" + file).isDirectory()) ){
-        	get_data_from_file(dirname + "/" + file, pattern, flags, 0)
-           }
-        });  
-    });
+    files.forEach(function(file, index){
+      if(! (fs.lstatSync(dirname + "/" + file).isDirectory()) ){
+        get_data_from_file(dirname + "/" + file, pattern, flags, 0)
+      }
+    });  
+  });
 }
 
 function main(){
@@ -93,39 +93,38 @@ function main(){
   }
 
   for(var i = 0; i < options.length; i++){
-    if(options[i] == '--help' || options[i] == '-h')
-      call_help('help');
+
     switch(options[i]){
       case '--help':
-        call_help('help')
-        break
+        call_help('help');
+        break;
       case '-h':
-    	call_help('help')
-    	break
+    	call_help('help');
+    	break;
       case '-i':
-      	flags['i'] = 1
-      	break
+      	flags['i'] = 1;
+      	break;
       case '-n':
-    	flags['n'] = 1
-    	break
+    	flags['n'] = 1;
+    	break;
       case '-ni':
-    	flags['n'] = 1
-    	flags['i'] = 1
-    	break
+    	flags['n'] = 1;
+    	flags['i'] = 1;
+    	break;
       case '-in':
-      	flags['n'] = 1
-      	flags['i'] = 1
-    	break
+      	flags['n'] = 1;
+      	flags['i'] = 1;
+    	break;
     }
   }
 
-  var list_of_files = []
-  var pattern = commandArguments[commandArguments.length-2].toString()
+  var list_of_files = [];
+  var pattern = commandArguments[commandArguments.length-2].toString();
 
   if(fs.lstatSync(commandArguments[commandArguments.length-1]).isDirectory())
   	dir_read(commandArguments[commandArguments.length-1], pattern, flags, 0);
   else
-  	get_data_from_file(commandArguments[commandArguments.length-1], pattern, flags, 1)
+  	get_data_from_file(commandArguments[commandArguments.length-1], pattern, flags, 1);
 }
 
 main()
