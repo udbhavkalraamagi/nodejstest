@@ -71,9 +71,9 @@ async function get_data_from_file(filename, pattern, flags, files_count){
 function main(){
 
   var result = options.parse({
-	  help:   { short: 'h', flag: true},
-	  line:   { short: 'n', flag: true},
-	  ignore: { short: 'i', flag: true },
+    help:   { short: 'h', flag: true},
+	line:   { short: 'n', flag: true},
+	ignore: { short: 'i', flag: true },
   });
  
   if(result.args.length < 2){
@@ -81,24 +81,24 @@ function main(){
   }
 
   var pattern = result.args[0].toString();
-  
+
   var flags = {'n':0, 'i':0};
 
   if(result.opt.help == true)
-  	call_help('help')
+    call_help('help')
   if(result.opt.ignore == true)
     flags['i'] = 1;
   if(result.opt.line == true)
-  	flags['n'] = 1;
+    flags['n'] = 1;
 
   var files_count = result.args.length-1;
 
   for(var ind=1; ind<result.args.length; ++ind){
-  	var file = result.args[ind]
-  	if((fs.lstatSync(file).isDirectory()))
+    var file = result.args[ind]
+    if((fs.lstatSync(file).isDirectory()))
       c(`grep: ${file}: Is a directory`);
     else
-  		get_data_from_file(file, pattern, flags, files_count);
+      get_data_from_file(file, pattern, flags, files_count);
   }
 
 }
