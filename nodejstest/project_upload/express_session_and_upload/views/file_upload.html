@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<body onload="myFunction()">
+
+<button class="btn btn-lg upload-btn" type="button" id="mylink" onclick="uploadnow()">Upload File</button>
+<input type="file" id="upload-input" multiple size="50" onchange="myFunction()">
+<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<div class="progress-bar"> </div>
+<p id="demo"></p>
+    
+<script>
+
+function uploadnow(){
+    var files = $('#upload-input').get(0).files;
+
+    if (files.length >= 1){
+
+      var formData = new FormData();
+
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        formData.append('uploads[]', file, file.name);
+      }
+
+      $.ajax({
+        url: '/upload',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data){
+            console.log('upload successful!\n' + data);
+        },
+        xhr: function() {
+          var xhr = new XMLHttpRequest();
+
+          xhr.upload.addEventListener('progress', function(evt) {
+
+            if (evt.lengthComputable) {
+              var percentComplete = evt.loaded / evt.total;
+              percentComplete = parseInt(percentComplete * 100);
+
+              $('.progress-bar').text(percentComplete + '%');
+              $('.progress-bar').width(percentComplete + '%');
+
+              if (percentComplete === 100) {
+
+                $('.progress-bar').html('Following files are uploaded !');
+              }
+
+            }
+
+          }, false);
+          
+          return xhr;
+        }
+      });
+
+    }
+}
+
+function myFunction(){
+    $('.progress-bar').html('');
+    document.getElementById("demo").innerHTML = "";
+    var x = document.getElementById("upload-input");
+    var txt = "";
+    if ('files' in x) {
+        if (x.files.length == 0) {
+            txt = "Select one or more files.";
+        } else {
+            for (var i = 0; i < x.files.length; i++) {
+                txt += "<br><strong>" + (i+1) + ". file</strong><br>";
+                var file = x.files[i];
+                if ('name' in file) {
+                    txt += "name: " + file.name + "<br>";
+                }
+                if ('size' in file) {
+                    txt += "size: " + file.size + " bytes <br>";
+                }
+            }
+        }
+    } 
+    else {
+        if (x.value == "") {
+            txt += "Select one or more files.";
+        } else {
+            txt += "The files property is not supported by your browser!";
+            txt  += "<br>The path of the selected file: " + x.value; // If the browser does not support the files property, it will return the path of the selected file instead. 
+        }
+    }
+    document.getElementById("demo").innerHTML = txt;
+}
+</script>
+
+</body>
+</html>
