@@ -1,0 +1,26 @@
+doctype
+html
+  head
+    title
+      | Files Upload
+    h3
+      | Upload Files
+  body
+    
+    button(class="btn btn-lg upload-btn" type="button" id="mylink" onclick="uploadnow()")
+     | Upload
+    input(type="file" id="upload-input" multiple size="50" onchange="getTheText()" value="Upload")
+    script(src="https://code.jquery.com/jquery-2.2.0.min.js")
+    div(class="progress-bar")
+    p(id="demo")
+
+    script(src="javascripts/upload.js")
+    script(src="javascripts/render.js")
+
+    script.
+      function getTheText(){
+        var ele = myFunction();
+        console.log(ele)
+        document.getElementById("demo").innerHTML = ele;
+      }
+
