@@ -10,6 +10,8 @@ html
     button(class="btn btn-lg upload-btn" type="button" id="mylink" onclick="uploadnow()")
      | Upload
     input(type="file" id="upload-input" multiple size="50" onchange="getTheText()" value="Upload")
+    a(href="/logout")
+      | logout
     script(src="https://code.jquery.com/jquery-2.2.0.min.js")
     div(class="progress-bar")
     p(id="demo")
