@@ -126,7 +126,7 @@ app.get('/logout',function(req,res){
 app.get('/upload_files',function(req,res){
     sess = req.session;
     if(sess.email && json_global_obj[sess.email] == sess.encrypted_pass) {
-      console.log("upload if");
+      // console.log("upload if");
       res.render('file_upload.html');
     }
     else {
