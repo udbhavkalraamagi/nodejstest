@@ -436,7 +436,7 @@ function print_the_information(matched_content, flags_values, count_files, lines
   read it
   and store the necessary information and pass it one by one to the function to render the information
 */
-async function get_data_from_file(filename, pattern, flags_values, matched_content, count_files){
+async function get_data_from_file(filename, pattern, flags_values, count_files){
   let data = await reading_the_file(filename);
 
   let matched_content = {}
@@ -620,12 +620,12 @@ function main(){
   }
 
   if(flags_values.anum && isNaN(flags_values.anum)==true){
-    console_print("grep: google: invalid context length argument");
+    console_print("grep: "+pattern+": invalid context length argument");
     process.exit(1);
   }
 
   if(flags_values.bnum && isNaN(flags_values.bnum)==true){
-    console_print("grep: google: invalid context length argument");
+    console_print("grep: "+pattern+": invalid context length argument");
     process.exit(1);
   }
 
@@ -633,7 +633,7 @@ function main(){
   if(flags_values.cnum){
 
     if(isNaN(flags_values.cnum)==true){
-      console_print("grep: google: invalid context length argument");
+      console_print("grep: "+pattern+": invalid context length argument");
       process.exit(1);
     }
 
