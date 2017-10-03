@@ -1,3 +1,0 @@
-single_door file text
-refrigerator
-RefrigeratOr
