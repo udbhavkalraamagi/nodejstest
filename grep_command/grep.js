@@ -3,14 +3,14 @@
 /* required modules */
 const fs = require('fs');
 const path = require('path')
-var isValid = require('is-valid-path');
-// var options = require('options-parser');
+const isValid = require('is-valid-path');
+// let options = require('options-parser');
 const commandLineArgs = require('command-line-args')
 
-var hash = {}
-var final_result_hash = {}
+let hash = {}
+let final_result_hash = {}
 let count_files = 0
-var inputfiles = {'files' : [], 'dirs' : [] }
+let inputfiles = {'files' : [], 'dirs' : [] }
 
 // to print the values on console
 function console_print(to_print){
@@ -43,20 +43,20 @@ function reading_the_file(filename) {
 function get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
 	size_global_abnum, what_to_get, lineno, lines, indexes_for_lines){
 
-  var tab_flag = 0;
+  let tab_flag = 0;
 
   if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
     tab_flag = 1;
 
   //global add here
-  var bnum_copy=0, anum_copy=0;
+  let bnum_copy=0, anum_copy=0;
 
   if(flags_values.bnum){
 
     bnum_copy = flags_values.bnum;
     prior_string_print[what_to_get] = []
 
-    var current_line_offset_before = Number(lineno)-Number(bnum_copy)
+    let current_line_offset_before = Number(lineno)-Number(bnum_copy)
 
     while(bnum_copy > 0){
 
@@ -104,7 +104,7 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
     anum_copy = flags_values.anum;
     after_string_print[what_to_get] = []
 
-    var current_line_offset = Number(lineno)+1
+    let current_line_offset = Number(lineno)+1
 
     while(anum_copy > 0){
   	  	
@@ -166,24 +166,24 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     return;
   }
 
-  var total_lines = Object.keys(indexes_for_lines).length
+  let total_lines = Object.keys(indexes_for_lines).length
 
   // for mcount
-  var line_printed_count = 0;
-  var tab_flag = 0;
+  let line_printed_count = 0;
+  let tab_flag = 0;
   if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
     tab_flag = 1;
 
   //iterate over all the lines
-  for(var lineno in structure){
+  for(let lineno in structure){
 
-    var size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 }
+    let size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 }
     if(flags_values.anum)
       size_global_abnum['global_min_anum'] = flags_values.anum;
     if(flags_values.bnum)
       size_global_abnum['global_min_bnum'] = flags_values.bnum
 
-    var string_to_print = "", prior_string_print = {}, after_string_print = {};
+    let string_to_print = "", prior_string_print = {}, after_string_print = {};
 
     //if mcount is set and we have reached the point of lines' count
     if(flags_values.mcount && line_printed_count == flags_values.mcount){
@@ -224,8 +224,8 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "index", lineno, lines, indexes_for_lines)
 
-      // var value = (structure[lineno]['indexes'].length + indexes_for_lines[lineno]);
-      var value = (indexes_for_lines[lineno]);
+      // let value = (structure[lineno]['indexes'].length + indexes_for_lines[lineno]);
+      let value = (indexes_for_lines[lineno]);
 
       if(tab_flag)
         string_to_print += value.toString()+"\t:"
@@ -247,36 +247,36 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
       string_to_print += structure[lineno]['line']
     }
 
-    var key_with_index_prev = {}, key_with_index_after = {}
+    let key_with_index_prev = {}, key_with_index_after = {}
 
-    for(var key in prior_string_print){
+    for(let key in prior_string_print){
       size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[key].length)
     }
 
-    for(var key in after_string_print){
+    for(let key in after_string_print){
       size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[key].length)
     }
 
-    for(var key in prior_string_print){
+    for(let key in prior_string_print){
 
       if(Number(size_global_abnum['global_min_bnum']) == 0)
         break;
       key_with_index_prev[key] = prior_string_print[key].length - size_global_abnum['global_min_bnum'];
     }
 
-    for(var key in after_string_print){
+    for(let key in after_string_print){
 
       if(after_string_print[key].length == 0)
         break;
       key_with_index_after[key] = after_string_print[key].length - size_global_abnum['global_min_anum'];
     }
 
-    var print_before = "", print_after = "";
-    var over = 0;
+    let print_before = "", print_after = "";
+    let over = 0;
     bnum_copy = flags_values.bnum
 
     while(over == 0 && bnum_copy > 0){
-      for(var current_key in key_with_index_prev){
+      for(let current_key in key_with_index_prev){
         print_before += prior_string_print[current_key][key_with_index_prev[current_key]]
     	key_with_index_prev[current_key]++;
 
@@ -297,7 +297,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     anum_copy = flags_values.anum
     while(over == 0 && anum_copy > 0){
 
-      for(var current_key in key_with_index_after){
+      for(let current_key in key_with_index_after){
         print_after += after_string_print[current_key][key_with_index_after[current_key]]
     	key_with_index_after[current_key]++;
 
@@ -328,22 +328,22 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
 function get_indexes(matched_content_file){
   
-  var indexes_for_lines = {};
+  let indexes_for_lines = {};
 
-  for(var lineno in matched_content_file['matched']){
+  for(let lineno in matched_content_file['matched']){
     indexes_for_lines[lineno] = matched_content_file['matched'][lineno]['line'].length
   }
 
-  for(var lineno in matched_content_file['unmatched']){
+  for(let lineno in matched_content_file['unmatched']){
     indexes_for_lines[lineno] = matched_content_file['unmatched'][lineno]['line'].length
   }
 
-  var current_length = 0, length_till_now = 0
+  let current_length = 0, length_till_now = 0
 
   /* creating the structure to be passed and stored for reference 
      in case required for the option -b */
 
-  for(var lineno in indexes_for_lines){
+  for(let lineno in indexes_for_lines){
 
     current_length = indexes_for_lines[lineno]
     indexes_for_lines[lineno] = length_till_now
@@ -361,9 +361,9 @@ function get_indexes(matched_content_file){
 function print_the_information(matched_content, flags_values, count_files, lines){
 
   // '0' for matched
-  var matched_unmatched = 0
-  var filename_only = 0
-  var filename_show_always = 0
+  let matched_unmatched = 0
+  let filename_only = 0
+  let filename_show_always = 0
   
   if(count_files > 0 || flags_values.hfilename){
     filename_show_always = 1;
@@ -389,7 +389,7 @@ function print_the_information(matched_content, flags_values, count_files, lines
   }
 
   // for all the files available in the database or input given
-  for(var file in matched_content){
+  for(let file in matched_content){
 
     if(filename_only == 1){
       if(matched_unmatched == 0){
@@ -416,7 +416,7 @@ function print_the_information(matched_content, flags_values, count_files, lines
       continue;
     }
 
-    var indexes_for_lines = get_indexes(matched_content[file], flags_values)
+    let indexes_for_lines = get_indexes(matched_content[file], flags_values)
 
     if(matched_unmatched == 0){
       loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
@@ -437,23 +437,23 @@ function print_the_information(matched_content, flags_values, count_files, lines
   and store the necessary information and pass it one by one to the function to render the information
 */
 async function get_data_from_file(filename, pattern, flags_values, matched_content, count_files){
-  var data = await reading_the_file(filename);
+  let data = await reading_the_file(filename);
 
-  var matched_content = {}
+  let matched_content = {}
 
-  var local_flags = "g"  
+  let local_flags = "g"  
   if(flags_values.ignore == true || flags_values.yignore == true){
     local_flags += "i"
   }
 
   matched_content[filename] = {'matched' : {}, 'unmatched' : {}}
 
-  var file_content = data.toString();
-  var lines = file_content.split("\n");
-  var lines_count = lines.length
+  let file_content = data.toString();
+  let lines = file_content.split("\n");
+  let lines_count = lines.length
 
-  for(var line_number=1; line_number<=lines_count; line_number++){
-    var myRegexp = new RegExp(pattern, local_flags)
+  for(let line_number=1; line_number<=lines_count; line_number++){
+    let myRegexp = new RegExp(pattern, local_flags)
 
     if(flags_values.exactword == true){
       myRegexp = new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags)
@@ -462,10 +462,10 @@ async function get_data_from_file(filename, pattern, flags_values, matched_conte
     if(flags_values.linematch == true || flags_values.fixed_match == true)
       myRegexp = new RegExp("^"+pattern+"$", local_flags)
 
-    var anymatch = 0, result;
+    let anymatch = 0, result;
 
     if(flags_values.fixed_match == true){
-      var result_fixed = lines[line_number-1].indexOf(pattern)
+      let result_fixed = lines[line_number-1].indexOf(pattern)
 
       if(result_fixed >= 0){
 
@@ -578,11 +578,11 @@ function main(){
     call_help();
   }
  	
-  var commandArguments = process.argv.slice(2);
-  var arg_index = 0;
+  let commandArguments = process.argv.slice(2);
+  let arg_index = 0;
 
   if(commandArguments.length < 2){
-    var inp = "";
+    let inp = "";
   	process.stdin(inp);
   	console_print(inp);
 
@@ -593,8 +593,8 @@ function main(){
     process.exit(0)
   }
 
-  for(var i=0; i<commandArguments.length; i++){
-    var this_argument = commandArguments[i];
+  for(let i=0; i<commandArguments.length; i++){
+    let this_argument = commandArguments[i];
 
     if(this_argument[0] == '-' ||
       (isNaN(this_argument[0])==false && flags_values.mcount) ||
@@ -609,8 +609,8 @@ function main(){
       break;
   }
 
-  var options_passed = commandArguments.slice(0, arg_index);
-  var pattern = commandArguments[arg_index].toString();
+  let options_passed = commandArguments.slice(0, arg_index);
+  let pattern = commandArguments[arg_index].toString();
   commandArguments = commandArguments.slice(arg_index+1,commandArguments.length)
 
   //check if mcount is specificied rightly or not
@@ -651,11 +651,11 @@ function main(){
     commandArguments = ['.']
   }
 
-  var files_count = commandArguments.length
+  let files_count = commandArguments.length
 
   //for all the files
-  for(var ind=0; ind<commandArguments.length; ++ind){
-    var file = commandArguments[ind]
+  for(let ind=0; ind<commandArguments.length; ++ind){
+    let file = commandArguments[ind]
 
     if(fs.existsSync(commandArguments[ind]) == false){
       //show file name if suppress warning is there with more than one file
@@ -691,7 +691,7 @@ function main(){
 
   inputfiles['files'].sort()
 
-  for(var i=0; i<count_files; i++){
+  for(let i=0; i<count_files; i++){
     get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files)
   }
 
@@ -699,7 +699,7 @@ function main(){
 
   if(!flags_values.recur && !flags_values.rrecur){
 
-    for(var i=0; i<inputfiles['dirs'].length; i++){
+    for(let i=0; i<inputfiles['dirs'].length; i++){
       console_print('grep: ' + inputfiles['dirs'][i] + ": Is a directory")
     }
   }
