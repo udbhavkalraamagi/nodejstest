@@ -43,6 +43,10 @@ function reading_the_file(filename) {
 function get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
 	size_global_abnum, what_to_get, lineno, lines, indexes_for_lines){
 
+  var tab_flag = 0;
+  if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
+    tab_flag = 1;
+
   //global add here
   var bnum_copy=0, anum_copy=0;
 
@@ -51,23 +55,40 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
     bnum_copy = flags_values.bnum;
     prior_string_print[what_to_get] = []
 
-    var current_line_offset_before = Number(lineno)-Number(bnum_copy); exists_flag = 0
+    var current_line_offset_before = Number(lineno)-Number(bnum_copy)
 
     while(bnum_copy > 0){
 
       if(current_line_offset_before > 0){	
 
         if(what_to_get == 'filename')
-        prior_string_print[what_to_get].push(file+'-')
+          prior_string_print[what_to_get].push(file+'-')
 
-        else if(what_to_get == 'lineno')
-          prior_string_print['lineno'].push(current_line_offset_before.toString()+"-")
+        else if(what_to_get == 'lineno'){
+          if(tab_flag){
+            if(flags_values.index == true)
+              prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"-\t")
+            else
+              prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"\t-")
+          }
+          else
+            prior_string_print['lineno'].push(current_line_offset_before.toString()+"-")
+        }
 
-        else if(what_to_get == 'index')
-          prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-")
+        else if(what_to_get == 'index'){
+          if(tab_flag)
+            prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"\t-")
+          else
+            prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-")
+        }
 
-        else if(what_to_get == 'line')
+        else if(what_to_get == 'line'){
+          // if(tab_flag)
+          //   prior_string_print['line'].push(lines[current_line_offset_before-1])
+          
+          // else
           prior_string_print['line'].push(lines[current_line_offset_before-1])
+        }
         
       }
       current_line_offset_before++;
@@ -84,7 +105,6 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
     after_string_print[what_to_get] = []
 
     var current_line_offset = Number(lineno)+1
-    var exists_flag = 0
 
     while(anum_copy > 0){
   	  	
@@ -93,14 +113,33 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
         if(what_to_get == 'filename')
           after_string_print['filename'].push(file+"-")
 
-        else if(what_to_get == 'lineno')
-          after_string_print['lineno'].push(Number(current_line_offset).toString()+"-")
+        else if(what_to_get == 'lineno'){
+          if(tab_flag){
+            if(flags_values.index == true)
+              after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"-\t")
+            else
+              after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"\t-")
+          }
+          else
+            after_string_print['lineno'].push(Number(current_line_offset).toString()+"-")
+        }
 
-        else if(what_to_get == 'index')
-          after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-")
+        else if(what_to_get == 'index'){
+          if(tab_flag){
+            after_string_print['index'].push(indexes_for_lines[current_line_offset]+"\t-")
+          }
+          else
+            after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-")
+        }
 
-        else if(what_to_get == 'line')
+        else if(what_to_get == 'line'){
+          // if(tab_flag)
+          //   after_string_print['line'].push(lines[current_line_offset-1])
+          
+          // else
           after_string_print['line'].push(lines[current_line_offset-1])
+        }
+
       }
 
       current_line_offset++;
@@ -131,7 +170,10 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
   var total_lines = Object.keys(indexes_for_lines).length
 
   // for mcount
-  var line_printed_count = 0
+  var line_printed_count = 0;
+  var tab_flag = 0;
+  if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
+    tab_flag = 1;
 
   //iterate over all the lines
   for(var lineno in structure){
@@ -166,16 +208,27 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     if(flags_values.lineno == true){
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "lineno", lineno, lines, indexes_for_lines)
-      string_to_print += lineno+":"
-
+      if(tab_flag){
+        if(flags_values.index == true)
+          string_to_print += '\t'+lineno+":\t";
+        else
+          string_to_print += '\t'+lineno+"\t:";
+      }
+      else
+        string_to_print += lineno+":"
     }
 
     //-b option
     if(flags_values.index == true){
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "index", lineno, lines, indexes_for_lines)
-      var value = (structure[lineno]['indexes'].length+indexes_for_lines[lineno]);
-      string_to_print += value.toString()+":"
+
+      // var value = (structure[lineno]['indexes'].length + indexes_for_lines[lineno]);
+      var value = (indexes_for_lines[lineno]);
+      if(tab_flag)
+        string_to_print += value.toString()+"\t:"
+      else
+        string_to_print += value.toString()+":"
     }
     
     if(flags_values.match_only == true){
@@ -188,6 +241,10 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     else{
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "line", lineno, lines, indexes_for_lines)
+      // if(tab_flag){
+      //   string_to_print += structure[lineno]['line']
+      // }
+      // else
       string_to_print += structure[lineno]['line']
     }
 
@@ -270,7 +327,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
 function get_indexes(matched_content_file){
   
-  var indexes_for_lines = {}
+  var indexes_for_lines = {};
 
   for(var lineno in matched_content_file['matched']){
     indexes_for_lines[lineno] = matched_content_file['matched'][lineno]['line'].length
@@ -280,12 +337,13 @@ function get_indexes(matched_content_file){
     indexes_for_lines[lineno] = matched_content_file['unmatched'][lineno]['line'].length
   }
 
-  var current_length = 0, length_till_now = -1
+  var current_length = 0, length_till_now = 0
 
   /* creating the structure to be passed and stored for reference 
      in case required for the option -b */
 
   for(var lineno in indexes_for_lines){
+
     current_length = indexes_for_lines[lineno]
     indexes_for_lines[lineno] = length_till_now
     length_till_now = length_till_now + current_length + 1
@@ -505,7 +563,7 @@ function main(){
     { name: 'E', alias: 'E', type: Boolean },
     { name: 'G', alias: 'G', type: Boolean },
     { name: 'P', alias: 'P', type: Boolean },
-    { name: 'T', alias: 'T', type: Boolean },
+    { name: 'tab_stop', alias: 'T', type: Boolean },
     { name: 'D', alias: 'D', type: Boolean },
     { name: 'U', alias: 'U', type: Boolean },
     { name: 'I', alias: 'I', type: Boolean },
