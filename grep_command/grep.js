@@ -708,7 +708,7 @@ const main = function main_function_to_be_called(){
 
   inputfiles['dirs'].sort();
 
-  if(
+  if( 
   	!flags_values.recur
   	&& !flags_values.rrecur
   	){
