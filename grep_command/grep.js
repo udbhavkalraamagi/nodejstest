@@ -613,7 +613,7 @@ const main = function main_function_to_be_called(){
   //check if no file is mentioned
   if(commandArguments.length == 0){
     
-    let flags = "";
+    let flags = "g";
     process.stdin.setEncoding('utf8');
 
     if(flags_values.ignore == true)
