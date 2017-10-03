@@ -12,18 +12,18 @@ let count_files = 0;
 let inputfiles = {'files' : [], 'dirs' : [] };
 
 // to print the values on console
-function console_print(to_print){
+const console_print = function print_to_console(to_print){
   console.log(to_print);
 }
 
 //customized as if less arguments are given
-function call_help(){
+const call_help = function printing_help_string(){
   console_print("Usage: grep [OPTION]... PATTERN [FILE]...\nTry 'grep --help' for more information.");
   process.exit(1);
 }
 
 
-function reading_the_file(filename) {
+const reading_the_file = function read_the_file_async(filename) {
   //returns a promise
   return new Promise(resolve => {
     fs.readFile(filename,(err,data)=>{
@@ -39,7 +39,7 @@ function reading_the_file(filename) {
 }
 
 
-function get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+const get_details_for_adjacent_lines = function details_ABC_option(flags_values, prior_string_print, after_string_print, file,
 	size_global_abnum, what_to_get, lineno, lines, indexes_for_lines){
 
   let tab_flag = 0;
@@ -156,7 +156,7 @@ function to loop/iterate over the available content
 check some conditions and write the required output to console
 */
 
-function loop_over_content(structure, file, flags_values, matched_unmatched, filename_show_always,
+const loop_over_content = function iterate_over_data(structure, file, flags_values, matched_unmatched, filename_show_always,
     indexes_for_lines, lines){
   
   //if -c
@@ -328,7 +328,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
    get the indexes or the byte offset of the lines which is required at a later point of time
 */
 
-function get_indexes(matched_content_file){
+const get_indexes = function indexes_fetch(matched_content_file){
   
   let indexes_for_lines = {};
 
@@ -360,7 +360,7 @@ function get_indexes(matched_content_file){
   consider the flags/options
   change the values of options if required and pass it to final rendering function
 */
-function print_the_information(matched_content, flags_values, count_files, lines){
+const print_the_information = function show_the_information (matched_content, flags_values, count_files, lines){
 
   // '0' for matched
   let matched_unmatched = 0;
@@ -528,7 +528,7 @@ const walkSync = (dir, filelist = []) => {
   return filelist;
 }
 
-function main(){
+const main = function main_function_to_be_called(){
 
   const optionDefinitions = [
 
