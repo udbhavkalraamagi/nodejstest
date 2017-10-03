@@ -44,6 +44,7 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
 	size_global_abnum, what_to_get, lineno, lines, indexes_for_lines){
 
   var tab_flag = 0;
+
   if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
     tab_flag = 1;
 
@@ -65,7 +66,9 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
           prior_string_print[what_to_get].push(file+'-')
 
         else if(what_to_get == 'lineno'){
+
           if(tab_flag){
+
             if(flags_values.index == true)
               prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"-\t")
             else
@@ -76,6 +79,7 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
         }
 
         else if(what_to_get == 'index'){
+
           if(tab_flag)
             prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"\t-")
           else
@@ -83,10 +87,6 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
         }
 
         else if(what_to_get == 'line'){
-          // if(tab_flag)
-          //   prior_string_print['line'].push(lines[current_line_offset_before-1])
-          
-          // else
           prior_string_print['line'].push(lines[current_line_offset_before-1])
         }
         
@@ -114,7 +114,9 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
           after_string_print['filename'].push(file+"-")
 
         else if(what_to_get == 'lineno'){
+
           if(tab_flag){
+
             if(flags_values.index == true)
               after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"-\t")
             else
@@ -125,6 +127,7 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
         }
 
         else if(what_to_get == 'index'){
+
           if(tab_flag){
             after_string_print['index'].push(indexes_for_lines[current_line_offset]+"\t-")
           }
@@ -133,10 +136,6 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
         }
 
         else if(what_to_get == 'line'){
-          // if(tab_flag)
-          //   after_string_print['line'].push(lines[current_line_offset-1])
-          
-          // else
           after_string_print['line'].push(lines[current_line_offset-1])
         }
 
@@ -208,7 +207,9 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     if(flags_values.lineno == true){
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "lineno", lineno, lines, indexes_for_lines)
+
       if(tab_flag){
+
         if(flags_values.index == true)
           string_to_print += '\t'+lineno+":\t";
         else
@@ -225,6 +226,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
       // var value = (structure[lineno]['indexes'].length + indexes_for_lines[lineno]);
       var value = (indexes_for_lines[lineno]);
+
       if(tab_flag)
         string_to_print += value.toString()+"\t:"
       else
@@ -241,10 +243,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     else{
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "line", lineno, lines, indexes_for_lines)
-      // if(tab_flag){
-      //   string_to_print += structure[lineno]['line']
-      // }
-      // else
+      
       string_to_print += structure[lineno]['line']
     }
 
@@ -259,12 +258,14 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     }
 
     for(var key in prior_string_print){
+
       if(Number(size_global_abnum['global_min_bnum']) == 0)
         break;
       key_with_index_prev[key] = prior_string_print[key].length - size_global_abnum['global_min_bnum'];
     }
 
     for(var key in after_string_print){
+
       if(after_string_print[key].length == 0)
         break;
       key_with_index_after[key] = after_string_print[key].length - size_global_abnum['global_min_anum'];
@@ -300,8 +301,8 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
         print_after += after_string_print[current_key][key_with_index_after[current_key]]
     	key_with_index_after[current_key]++;
 
-      if(key_with_index_after[current_key] >= after_string_print[current_key].length)
-        over = 1;
+        if(key_with_index_after[current_key] >= after_string_print[current_key].length)
+          over = 1;
       }
 
       print_after += '\n'
@@ -692,7 +693,6 @@ function main(){
 
   inputfiles['dirs'].sort()
 
-  //for recursive
   if(!flags_values.recur && !flags_values.rrecur){
 
     for(var i=0; i<inputfiles['dirs'].length; i++){
