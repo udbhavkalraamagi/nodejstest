@@ -44,7 +44,10 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
 
   let tab_flag = 0;
 
-  if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
+  if (
+  	  flags_values.tab_stop == true && 
+      (flags_values.hfilename || flags_values.index || flags_values.lineno)
+      )
     tab_flag = 1;
 
   //global add here
@@ -61,37 +64,30 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
 
       if(current_line_offset_before > 0){	
 
-        if(what_to_get == 'filename')
+        if(what_to_get == 'filename'){
           prior_string_print[what_to_get].push(file+'-');
-
-        else if(what_to_get == 'lineno'){
+        } else if(what_to_get == 'lineno'){
 
           if(tab_flag){
-
             if(flags_values.index == true)
               prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"-\t");
             else
               prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"\t-");
-          }
-          else
+          } else
             prior_string_print['lineno'].push(current_line_offset_before.toString()+"-");
-        }
-
-        else if(what_to_get == 'index'){
+        } else if(what_to_get == 'index'){
 
           if(tab_flag)
             prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"\t-");
           else
             prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-");
-        }
-
-        else if(what_to_get == 'line'){
+        } else if(what_to_get == 'line'){
           prior_string_print['line'].push(lines[current_line_offset_before-1]);
         }
         
       }
-      current_line_offset_before++;
-      bnum_copy--;
+      current_line_offset_before += 1;
+      bnum_copy -= 1;
     }
 
     size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[what_to_get].length);
@@ -109,10 +105,9 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
   	  	
       if(Number(current_line_offset) < lines.length){
 
-        if(what_to_get == 'filename')
+        if(what_to_get == 'filename'){
           after_string_print['filename'].push(file+"-");
-
-        else if(what_to_get == 'lineno'){
+        } else if(what_to_get == 'lineno'){
 
           if(tab_flag){
 
@@ -120,28 +115,22 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
               after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"-\t");
             else
               after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"\t-");
-          }
-          else
+          } else
             after_string_print['lineno'].push(Number(current_line_offset).toString()+"-");
-        }
-
-        else if(what_to_get == 'index'){
+        } else if(what_to_get == 'index'){
 
           if(tab_flag){
             after_string_print['index'].push(indexes_for_lines[current_line_offset]+"\t-");
-          }
-          else
+          } else
             after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-");
-        }
-
-        else if(what_to_get == 'line'){
+        } else if(what_to_get == 'line'){
           after_string_print['line'].push(lines[current_line_offset-1]);
         }
 
       }
 
-      current_line_offset++;
-      anum_copy--;
+      current_line_offset += 1;
+      anum_copy -= 1;
     }
     
     size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[what_to_get].length);
@@ -210,12 +199,11 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
       if(tab_flag){
 
-        if(flags_values.index == true)
+        if(flags_values.index == true){
           string_to_print += "\t" + lineno + ":\t";
-        else
+        } else
           string_to_print += "\t" + lineno + "\t:";
-      }
-      else
+      } else
         string_to_print += lineno + ":";
     }
 
@@ -227,20 +215,19 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
       // let value = (structure[lineno]['indexes'].length + indexes_for_lines[lineno]);
       let value = (indexes_for_lines[lineno]);
 
-      if(tab_flag)
+      if(tab_flag){
         string_to_print += value.toString() + "\t:"
-      else
+      } else
         string_to_print += value.toString() + ":";
     }
     
     if(flags_values.match_only == true){
       string_to_print += structure[lineno]['match_value'];
-    }
+    } else{
 
+      /* print the line
+      if required */
 
-    /* print the line
-    if required */
-    else{
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "line", lineno, lines, indexes_for_lines);
       
@@ -279,7 +266,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
       for(let current_key in key_with_index_prev){
         print_before += prior_string_print[current_key][key_with_index_prev[current_key]];
-    	key_with_index_prev[current_key]++;
+    	key_with_index_prev[current_key] += 1;
 
       if(key_with_index_prev[current_key] >= prior_string_print[current_key].length)
         over = 1;
@@ -289,7 +276,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
       if(over == 1)
         process.stdout.write(print_before);
-      bnum_copy--;
+      bnum_copy -= 1;
     }
 
     /* to print the matched pattern/string */
@@ -301,7 +288,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
       for(let current_key in key_with_index_after){
         print_after += after_string_print[current_key][key_with_index_after[current_key]];
-    	key_with_index_after[current_key]++;
+    	key_with_index_after[current_key] += 1;
 
         if(key_with_index_after[current_key] >= after_string_print[current_key].length)
           over = 1;
@@ -311,13 +298,13 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
       if(over == 1)
         process.stdout.write(print_after);
-      anum_copy--;
+      anum_copy -= 1;
     }
 
     if(flags_values.anum || flags_values.bnum)
       console_print("--");
 
-    line_printed_count++;
+    line_printed_count += 1;
   }
   //end of for line
 }
@@ -367,7 +354,10 @@ const print_the_information = function show_the_information (matched_content, fl
   let filename_only = 0;
   let filename_show_always = 0;
   
-  if(count_files > 0 || flags_values.hfilename){
+  if(
+  	count_files > 0 
+  	|| flags_values.hfilename
+  	){
     filename_show_always = 1;
   }
 
@@ -398,9 +388,7 @@ const print_the_information = function show_the_information (matched_content, fl
 
         if(Object.keys(matched_content[file]['matched']).length > 0)
           console_print(file);
-    }
-	
-    else{
+    } else{
       if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
         Object.keys(matched_content[file]['matched']).length == 0)
           console_print(file);
@@ -411,6 +399,7 @@ const print_the_information = function show_the_information (matched_content, fl
     }
 
     if(flags_values.count == true){
+
       flags_values.lineno = false;
       filename_show_always = 1;
       loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
@@ -423,9 +412,7 @@ const print_the_information = function show_the_information (matched_content, fl
     if(matched_unmatched == 0){
       loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
 	                        filename_show_always, indexes_for_lines, lines);
-    }
-
-    else{
+    }  else{
       loop_over_content(matched_content[file]['unmatched'], file, flags_values, matched_unmatched,
 	                        filename_show_always, indexes_for_lines, lines);
     }
@@ -444,7 +431,10 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
   let matched_content = {};
   let local_flags = "g";
 
-  if(flags_values.ignore == true || flags_values.yignore == true){
+  if(
+  	flags_values.ignore == true
+  	|| flags_values.yignore == true
+  	){
     local_flags += "i";
   }
 
@@ -461,7 +451,10 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
       myRegexp = new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags);
     }
 
-    if(flags_values.linematch == true || flags_values.fixed_match == true)
+    if(
+      flags_values.linematch == true
+      || flags_values.fixed_match == true
+      )
       myRegexp = new RegExp("^"+pattern+"$", local_flags);
 
     let anymatch = 0, result;
@@ -476,28 +469,24 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
           matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1];
           matched_content[filename]['matched'][line_number]['match_value'] = pattern;
           matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed);
-        }
-
-        else{
+        } else{
           matched_content[filename]['matched'][line_number]['match_value'] = pattern;
           matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed);
         }
 
       anymatch = 1;
       }
-    }
-
-    else{
-      while ( (result = myRegexp.exec(lines[line_number-1]))){
+    } else{
+      while (
+            (result = myRegexp.exec(lines[line_number-1]))
+            ){
 	      
         if(anymatch == 0){
           matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""};
           matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1];
           matched_content[filename]['matched'][line_number]['match_value'] = result[0];
           matched_content[filename]['matched'][line_number]['indexes'].push(result.index);
-        }
-
-        else{
+        } else{
           matched_content[filename]['matched'][line_number]['match_value'] = result[0];
           matched_content[filename]['matched'][line_number]['indexes'].push(result.index);
         }
@@ -599,11 +588,10 @@ const main = function main_function_to_be_called(){
       (isNaN(this_argument[0])==false && flags_values.cnum) ||
       (isNaN(this_argument[0])==false && flags_values.anum) ){
 
-      arg_index++;
-    }
-
-    else
+      arg_index += 1;
+    } else{
       break;
+    }
   }
 
   let options_passed = commandArguments.slice(0, arg_index);
@@ -629,17 +617,26 @@ const main = function main_function_to_be_called(){
   }
 
   //check if mcount is specificied rightly or not
-  if(flags_values.mcount && isNaN(flags_values.mcount)==true){
+  if(
+  	flags_values.mcount
+  	&& isNaN(flags_values.mcount)==true
+  	){
     console_print("grep: invalid max count");
     process.exit(1);
   }
 
-  if(flags_values.anum && isNaN(flags_values.anum)==true){
+  if(
+  	flags_values.anum
+  	&& isNaN(flags_values.anum)==true
+  	){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
   }
 
-  if(flags_values.bnum && isNaN(flags_values.bnum)==true){
+  if(
+  	flags_values.bnum
+  	&& isNaN(flags_values.bnum)==true
+  	){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
   }
@@ -661,8 +658,9 @@ const main = function main_function_to_be_called(){
   flags_values.anum = (flags_values.anum) ? (flags_values.anum) : 0;
 
   // if no argument is specified for recursive option
-  if( (flags_values.recur == true || flags_values.rrecur == true) && 
-    commandArguments.length == 0){
+  if(
+  	(flags_values.recur == true || flags_values.rrecur == true)
+  	&& commandArguments.length == 0){
     commandArguments = ['.'];
   }
 
@@ -690,9 +688,7 @@ const main = function main_function_to_be_called(){
         inputfiles['files'] = [].concat(walkSync(file,inputfiles['files']));
       }
 
-    }
-
-    else{
+    } else{
       inputfiles['files'].push(file);
     }
 
@@ -712,7 +708,10 @@ const main = function main_function_to_be_called(){
 
   inputfiles['dirs'].sort();
 
-  if(!flags_values.recur && !flags_values.rrecur){
+  if(
+  	!flags_values.recur
+  	&& !flags_values.rrecur
+  	){
 
     for(let i=0; i<inputfiles['dirs'].length; i++){
       console_print(`grep: ${inputfiles['dirs'][i]}: Is a directory`);
