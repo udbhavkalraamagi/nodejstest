@@ -612,11 +612,12 @@ const main = function main_function_to_be_called(){
   
   //check if no file is mentioned
   if(commandArguments.length == 0){
-  	let flags = "";
-  	process.stdin.setEncoding('utf8');
+    
+    let flags = "";
+    process.stdin.setEncoding('utf8');
 
-  	if(flags_values.ignore == true)
-  	  flags += "i";
+    if(flags_values.ignore == true)
+      flags += "i";
 
     process.stdin.on('readable', () => {
       const text = process.stdin.read();
