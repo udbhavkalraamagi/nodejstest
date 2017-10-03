@@ -1,6 +1,6 @@
 #!/usr/local/bin/node
 
-//require modules
+/* required modules */
 const fs = require('fs');
 const path = require('path')
 var isValid = require('is-valid-path');
@@ -25,7 +25,6 @@ function call_help(){
 
 
 function reading_the_file(filename) {
-
   //returns a promise
   return new Promise(resolve => {
     fs.readFile(filename,(err,data)=>{
@@ -37,9 +36,82 @@ function reading_the_file(filename) {
       resolve(data);
 	 
     });
-
   });
 }
+
+
+function get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+	size_global_abnum, what_to_get, lineno, lines, indexes_for_lines){
+
+  //global add here
+  var bnum_copy=0, anum_copy=0;
+
+  if(flags_values.bnum){
+
+  	bnum_copy = flags_values.bnum;
+  	prior_string_print[what_to_get] = []
+
+  	var current_line_offset_before = Number(lineno)-Number(bnum_copy); exists_flag = 0
+
+  	while(bnum_copy > 0){
+
+  	  if(current_line_offset_before > 0){	
+
+  	  	if(what_to_get == 'filename')
+  	  	  prior_string_print[what_to_get].push(file+'-')
+
+  	  	else if(what_to_get == 'lineno')
+  	  	  prior_string_print['lineno'].push(current_line_offset_before.toString()+"-")
+
+  	  	else if(what_to_get == 'index')
+  	  	  prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-")
+
+  	  	else if(what_to_get == 'line')
+  	  	  prior_string_print['line'].push(lines[current_line_offset_before-1])
+        
+  	  }
+  	  current_line_offset_before++;
+  	  bnum_copy--;
+  	}
+
+  	size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[what_to_get].length)
+  }
+  //end of bnum option
+
+  if(flags_values.anum){
+
+  	anum_copy = flags_values.anum;
+  	after_string_print[what_to_get] = []
+
+  	var current_line_offset = Number(lineno)+1
+  	var exists_flag = 0
+
+  	while(anum_copy > 0){
+  	  	
+  	  if(Number(current_line_offset) < lines.length){
+
+  	    if(what_to_get == 'filename')
+  	      after_string_print['filename'].push(file+"-")
+
+  	    else if(what_to_get == 'lineno')
+  	      after_string_print['lineno'].push(Number(current_line_offset).toString()+"-")
+
+  	    else if(what_to_get == 'index')
+  	      after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-")
+
+  	    else if(what_to_get == 'line')
+  	      after_string_print['line'].push(lines[current_line_offset-1])
+  	  }
+
+  	  current_line_offset++;
+  	  anum_copy--;
+  	}
+    
+    size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[what_to_get].length)
+  }
+  //end of anum option
+
+}// end of function
 
 
 /*
@@ -50,7 +122,6 @@ check some conditions and write the required output to console
 function loop_over_content(structure, file, flags_values, matched_unmatched, filename_show_always,
     indexes_for_lines, lines){
 
-
   //if -c
   if(flags_values.count == true){
     console_print(file+":"+Object.keys(structure).length)
@@ -58,8 +129,6 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
   }
 
   var total_lines = Object.keys(indexes_for_lines).length
-  var global_min_anum = 1000000, local_min_anum = 1000000;
-  var global_min_bnum = 1000000, local_min_bnum = 1000000;
 
   // for mcount
   var line_printed_count = 0
@@ -67,42 +136,23 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
   //iterate over all the lines
   for(var lineno in structure){
 
+    var size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 }
+    if(flags_values.anum)
+      size_global_abnum['global_min_anum'] = flags_values.anum;
+    if(flags_values.bnum)
+  	  size_global_abnum['global_min_bnum'] = flags_values.bnum
+
   	var string_to_print = "", prior_string_print = {}, after_string_print = {};
 
   	//if mcount is set and we have reached the point of lines' count
   	if(flags_values.mcount && line_printed_count == flags_values.mcount){
-  		break;
+  	  break;
   	}
 
     //to show the filename
     if(filename_show_always == 1){
-
-      var bnum_copy=0, anum_copy=0;
-
-      if(flags_values.bnum){
-      	bnum_copy = flags_values.bnum;
-      	prior_string_print['filename'] = []
-
-      	while(bnum_copy > 0){
-      	  prior_string_print['filename'].push(file+"-")
-      	  bnum_copy--;
-      	}
-
-      	global_min_bnum = Math.min(global_min_bnum, prior_string_print['filename'].length)
-      }
-
-      if(flags_values.anum){
-      	anum_copy = flags_values.anum;
-      	after_string_print['filename'] = []
-
-      	while(anum_copy > 0){
-      	  after_string_print['filename'].push(file+"-")
-      	  anum_copy--;
-      	}
-
-      	global_min_anum = Math.min(global_min_anum, after_string_print['filename'].length)
-      }
-
+      get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+           size_global_abnum, "filename", lineno, lines, indexes_for_lines)
       string_to_print = file+":";
     }
 
@@ -114,168 +164,94 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
     //-n options
     if(flags_values.lineno == true){
-
-      var bnum_copy=0, anum_copy=0;
-
-      if(flags_values.bnum){
-      	bnum_copy = flags_values.bnum;
-      	prior_string_print['lineno'] = []
-
-      	while(bnum_copy > 0){
-
-      	  if(lineno-bnum_copy > 0)
-      	  	prior_string_print['lineno'].push(lineno-bnum_copy.toString()+"-")
-      	  bnum_copy--;
-      	}
-
-      	global_min_bnum = Math.min(global_min_bnum, prior_string_print['filename'].length)
-      }
-
-      if(flags_values.anum){
-      	anum_copy = flags_values.anum;
-      	after_string_print['lineno'] = []
-
-      	while(anum_copy > 0){
-      	  if(lineno-anum_copy < lines.length)
-      	  	after_string_print['lineno'].push(lineno-anum_copy.toString()+"-")
-      	  anum_copy--;
-      	}
-
-      	global_min_anum = Math.min(global_min_anum, after_string_print['filename'].length)
-      }
-
+      get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+           size_global_abnum, "lineno", lineno, lines, indexes_for_lines)
       string_to_print += lineno+":"
 
     }
 
-
     //-b option
     if(flags_values.index == true){
-
-      var bnum_copy=0, anum_copy=0;
-
-      if(flags_values.bnum){
-      	bnum_copy = flags_values.bnum;
-      	prior_string_print['index'] = []
-
-      	while(bnum_copy > 0){
-
-      	  if(lineno-bnum_copy > 0)
-      	  	prior_string_print['index'].push(indexes_for_lines[lineno-bnum_copy]+"-")
-      	  bnum_copy--;
-      	}
-
-      	global_min_bnum = Math.min(global_min_bnum, prior_string_print['filename'].length)
-      }
-
-      if(flags_values.anum){
-      	anum_copy = flags_values.anum;
-      	after_string_print['index'] = []
-
-      	while(anum_copy > 0){
-
-      	  if(lineno-anum_copy < lines.length)
-      	  	after_string_print['index'].push(indexes_for_lines[lineno-bnum_copy]+"-")
-      	  anum_copy--;
-      	}
-
-      	global_min_anum = Math.min(global_min_anum, after_string_print['filename'].length)
-      }
-
-
+      get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+           size_global_abnum, "index", lineno, lines, indexes_for_lines)
       var value = (structure[lineno]['indexes'].length+indexes_for_lines[lineno]);
       string_to_print += value.toString()+":"
-
     }
     
     if(flags_values.match_only == true){
-      // console_print('inside match only')
-      // console_print(structure[lineno]['match_value'])
       string_to_print += structure[lineno]['match_value']
     }
 
-    // print the line
-    // if required
+
+    /* print the line
+    if required */
     else{
-
-      var bnum_copy=0, anum_copy=0;
-
-      if(flags_values.bnum){
-      	bnum_copy = flags_values.bnum;
-      	prior_string_print['line'] = []
-
-      	while(bnum_copy > 0){
-
-      	  if(lineno-bnum_copy > 0)
-      	  	prior_string_print['line'].push(lines[lineno-bnum_copy])
-      	  bnum_copy--;
-      	}
-
-      	global_min_bnum = Math.min(global_min_bnum, prior_string_print['filename'].length)
-      }
-
-      if(flags_values.anum){
-      	anum_copy = flags_values.anum;
-      	after_string_print['line'] = []
-
-      	while(anum_copy > 0){
-
-      	  if(lineno-anum_copy < lines.length)
-      	  	after_string_print['line'].push(lines[lineno-bnum_copy])
-      	  anum_copy--;
-      	}
-
-      	global_min_anum = Math.min(global_min_anum, after_string_print['filename'].length)
-      }
+      get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
+           size_global_abnum, "line", lineno, lines, indexes_for_lines)
       string_to_print += structure[lineno]['line']
     }
 
     var key_with_index_prev = {}, key_with_index_after = {}
 
+   	for(var key in prior_string_print){
+   	  size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[key].length)
+   	}
+
+   	for(var key in after_string_print){
+   	  size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[key].length)
+   	}
+
     for(var key in prior_string_print){
-    	key_with_index_prev[key] = prior_string_print[key].length - global_min_bnum;
+      if(Number(size_global_abnum['global_min_bnum']) == 0)
+        break;
+      key_with_index_prev[key] = prior_string_print[key].length - size_global_abnum['global_min_bnum'];
     }
 
     for(var key in after_string_print){
-    	key_with_index_after[key] = after_string_print[key].length - global_min_anum;
+   	  if(after_string_print[key].length == 0)
+        break;
+      key_with_index_after[key] = after_string_print[key].length - size_global_abnum['global_min_anum'];
     }
 
     var print_before = "", print_after = "";
     var over = 0;
-    while(over == 0 && flags_values.bnum){
+    bnum_copy = flags_values.bnum
 
-    	for(var current_key in key_with_index_prev){
-          print_before += prior_string_print[current_key][key_with_index_prev[current_key]]
-    	  key_with_index_prev[current_key]++;
+    while(over == 0 && bnum_copy > 0){
+      for(var current_key in key_with_index_prev){
+        print_before += prior_string_print[current_key][key_with_index_prev[current_key]]
+    	key_with_index_prev[current_key]++;
 
-	      if(key_with_index_prev[current_key] >= prior_string_print[current_key].length)
-	        over = 1;	
-
-    	}
-    	print_before += '\n'
-
-    	if(over == 1)
-    	  process.stdout.write(print_before)
+	    if(key_with_index_prev[current_key] >= prior_string_print[current_key].length)
+	      over = 1;
+      }
+    
+      print_before += '\n'
+      if(over == 1)
+        process.stdout.write(print_before)
+      bnum_copy--;
     }
 
+    /* to print the matched pattern/string */
     console_print(string_to_print)
 
     over = 0;
-    while(over == 0 && flags_values.anum){
+    anum_copy = flags_values.anum
+    while(over == 0 && anum_copy > 0){
 
       for(var current_key in key_with_index_after){
         print_after += after_string_print[current_key][key_with_index_after[current_key]]
     	key_with_index_after[current_key]++;
 
 	    if(key_with_index_after[current_key] >= after_string_print[current_key].length)
-	      over = 1;	
-
+	      over = 1;
       }
 
       print_after += '\n'
 
       if(over == 1)
         process.stdout.write(print_after)
+      anum_copy--;
     }
 
     if(flags_values.anum || flags_values.bnum)
@@ -283,7 +259,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
   	line_printed_count++;
   }
-  //end of for
+  //end of for line
 }
 //end of function
 
@@ -306,8 +282,8 @@ function get_indexes(matched_content_file){
 
   var current_length = 0, length_till_now = -1
 
-  //creating the structure to be passed and stored for reference 
-  //in case required for the option -b
+  /* creating the structure to be passed and stored for reference 
+     in case required for the option -b */
 
   for(var lineno in indexes_for_lines){
     current_length = indexes_for_lines[lineno]
@@ -489,7 +465,6 @@ const walkSync = (dir, filelist = []) => {
       : filelist.concat(path.join(dir, file));
 
   });
-
   return filelist;
 }
 
@@ -571,7 +546,6 @@ function main(){
   		break;
   }
 
-
   var options_passed = commandArguments.slice(0, arg_index);
   var pattern = commandArguments[arg_index].toString();
   commandArguments = commandArguments.slice(arg_index+1,commandArguments.length)
@@ -604,6 +578,10 @@ function main(){
   	flags_values.anum = (flags_values.anum) ? (flags_values.anum) : (flags_values.cnum);
   }
 
+
+  flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : 0;
+  flags_values.anum = (flags_values.anum) ? (flags_values.anum) : 0;
+
   // if no argument is specified for recursive option
   if( (flags_values.recur == true || flags_values.rrecur == true) && 
     commandArguments.length == 0){
@@ -617,9 +595,13 @@ function main(){
   	var file = commandArguments[ind]
 
   	if(fs.existsSync(commandArguments[ind]) == false){
-  		if(!flags_values.suppress_file)
-  		  console_print("grep: "+ commandArguments[ind] +": No such file or directory")
-  		continue;
+  	  //show file name if suppress warning is there with more than one file
+  	  flags_values.hfilename = true;
+  	  
+  	  if(!flags_values.suppress_file){
+  	    console_print("grep: "+ commandArguments[ind] +": No such file or directory")
+  	  }
+  	  continue;
   	}
 
   	if((fs.lstatSync(file).isDirectory())){
