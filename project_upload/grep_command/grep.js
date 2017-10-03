@@ -48,64 +48,64 @@ function get_details_for_adjacent_lines(flags_values, prior_string_print, after_
 
   if(flags_values.bnum){
 
-  	bnum_copy = flags_values.bnum;
-  	prior_string_print[what_to_get] = []
+    bnum_copy = flags_values.bnum;
+    prior_string_print[what_to_get] = []
 
-  	var current_line_offset_before = Number(lineno)-Number(bnum_copy); exists_flag = 0
+    var current_line_offset_before = Number(lineno)-Number(bnum_copy); exists_flag = 0
 
-  	while(bnum_copy > 0){
+    while(bnum_copy > 0){
 
-  	  if(current_line_offset_before > 0){	
+      if(current_line_offset_before > 0){	
 
-  	  	if(what_to_get == 'filename')
-  	  	  prior_string_print[what_to_get].push(file+'-')
+        if(what_to_get == 'filename')
+        prior_string_print[what_to_get].push(file+'-')
 
-  	  	else if(what_to_get == 'lineno')
-  	  	  prior_string_print['lineno'].push(current_line_offset_before.toString()+"-")
+        else if(what_to_get == 'lineno')
+          prior_string_print['lineno'].push(current_line_offset_before.toString()+"-")
 
-  	  	else if(what_to_get == 'index')
-  	  	  prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-")
+        else if(what_to_get == 'index')
+          prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-")
 
-  	  	else if(what_to_get == 'line')
-  	  	  prior_string_print['line'].push(lines[current_line_offset_before-1])
+        else if(what_to_get == 'line')
+          prior_string_print['line'].push(lines[current_line_offset_before-1])
         
-  	  }
-  	  current_line_offset_before++;
-  	  bnum_copy--;
-  	}
+      }
+      current_line_offset_before++;
+      bnum_copy--;
+    }
 
-  	size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[what_to_get].length)
+    size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[what_to_get].length)
   }
   //end of bnum option
 
   if(flags_values.anum){
 
-  	anum_copy = flags_values.anum;
-  	after_string_print[what_to_get] = []
+    anum_copy = flags_values.anum;
+    after_string_print[what_to_get] = []
 
-  	var current_line_offset = Number(lineno)+1
-  	var exists_flag = 0
+    var current_line_offset = Number(lineno)+1
+    var exists_flag = 0
 
-  	while(anum_copy > 0){
+    while(anum_copy > 0){
   	  	
-  	  if(Number(current_line_offset) < lines.length){
+      if(Number(current_line_offset) < lines.length){
 
-  	    if(what_to_get == 'filename')
-  	      after_string_print['filename'].push(file+"-")
+        if(what_to_get == 'filename')
+          after_string_print['filename'].push(file+"-")
 
-  	    else if(what_to_get == 'lineno')
-  	      after_string_print['lineno'].push(Number(current_line_offset).toString()+"-")
+        else if(what_to_get == 'lineno')
+          after_string_print['lineno'].push(Number(current_line_offset).toString()+"-")
 
-  	    else if(what_to_get == 'index')
-  	      after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-")
+        else if(what_to_get == 'index')
+          after_string_print['index'].push(indexes_for_lines[current_line_offset]+"-")
 
-  	    else if(what_to_get == 'line')
-  	      after_string_print['line'].push(lines[current_line_offset-1])
-  	  }
+        else if(what_to_get == 'line')
+          after_string_print['line'].push(lines[current_line_offset-1])
+      }
 
-  	  current_line_offset++;
-  	  anum_copy--;
-  	}
+      current_line_offset++;
+      anum_copy--;
+    }
     
     size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[what_to_get].length)
   }
@@ -193,13 +193,13 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
 
     var key_with_index_prev = {}, key_with_index_after = {}
 
-   	for(var key in prior_string_print){
-   	  size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[key].length)
-   	}
+    for(var key in prior_string_print){
+      size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[key].length)
+    }
 
-   	for(var key in after_string_print){
-   	  size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[key].length)
-   	}
+    for(var key in after_string_print){
+      size_global_abnum['global_min_anum'] = Math.min(size_global_abnum['global_min_anum'], after_string_print[key].length)
+    }
 
     for(var key in prior_string_print){
       if(Number(size_global_abnum['global_min_bnum']) == 0)
@@ -208,7 +208,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     }
 
     for(var key in after_string_print){
-   	  if(after_string_print[key].length == 0)
+      if(after_string_print[key].length == 0)
         break;
       key_with_index_after[key] = after_string_print[key].length - size_global_abnum['global_min_anum'];
     }
@@ -257,7 +257,7 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     if(flags_values.anum || flags_values.bnum)
       console_print("--")
 
-  	line_printed_count++;
+    line_printed_count++;
   }
   //end of for line
 }
@@ -301,7 +301,7 @@ function get_indexes(matched_content_file){
 */
 function print_the_information(matched_content, flags_values, count_files, lines){
 
-	// '0' for matched
+  // '0' for matched
   var matched_unmatched = 0
   var filename_only = 0
   var filename_show_always = 0
@@ -316,60 +316,60 @@ function print_the_information(matched_content, flags_values, count_files, lines
 
 	
   if(flags_values.matchfiles == true){
-  	matched_unmatched = 0;
-	filename_only = 1
+    matched_unmatched = 0;
+    filename_only = 1
   }
 
   if(flags_values.unmatchfiles == true){
-	matched_unmatched = 1;
-	filename_only = 1
+    matched_unmatched = 1;
+    filename_only = 1
   }
 
   if(flags_values.invert == true){
-	matched_unmatched = 1;
+    matched_unmatched = 1;
   }
 
   // for all the files available in the database or input given
   for(var file in matched_content){
 
-	if(filename_only == 1){
-	  if(matched_unmatched == 0){
+    if(filename_only == 1){
+      if(matched_unmatched == 0){
 
-	  if(Object.keys(matched_content[file]['matched']).length > 0)
-		console_print(file)
-	  }
+        if(Object.keys(matched_content[file]['matched']).length > 0)
+          console_print(file)
+    }
 	
-	  else{
-		if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
-		    Object.keys(matched_content[file]['matched']).length == 0)
-			  console_print(file)
-	  }
+    else{
+    if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
+      Object.keys(matched_content[file]['matched']).length == 0)
+      console_print(file)
+    }
 
-      continue;
+    continue;
+    
     }
 
     if(flags_values.count == true){
-	  flags_values.lineno = false;
-	  filename_show_always = 1;
-	  loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
+      flags_values.lineno = false;
+      filename_show_always = 1;
+      loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
 	                        filename_show_always, lines);
-	  continue;
+      continue;
     }
 
     var indexes_for_lines = get_indexes(matched_content[file], flags_values)
 
     if(matched_unmatched == 0){
-	  loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
+      loop_over_content(matched_content[file]['matched'], file, flags_values, matched_unmatched,
 	                        filename_show_always, indexes_for_lines, lines);
     }
 
     else{
-	  loop_over_content(matched_content[file]['unmatched'], file, flags_values, matched_unmatched,
+      loop_over_content(matched_content[file]['unmatched'], file, flags_values, matched_unmatched,
 	                        filename_show_always, indexes_for_lines, lines);
     }
 
   } // end of 'for' loop
-
 } // end of function
 
 /*
@@ -396,52 +396,52 @@ async function get_data_from_file(filename, pattern, flags_values, matched_conte
   for(var line_number=1; line_number<=lines_count; line_number++){
     var myRegexp = new RegExp(pattern, local_flags)
 
-	if(flags_values.exactword == true){
-	  myRegexp = new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags)
-	}
+    if(flags_values.exactword == true){
+      myRegexp = new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags)
+    }
 
-	if(flags_values.linematch == true || flags_values.fixed_match == true)
-	  myRegexp = new RegExp("^"+pattern+"$", local_flags)
+    if(flags_values.linematch == true || flags_values.fixed_match == true)
+      myRegexp = new RegExp("^"+pattern+"$", local_flags)
 
-    var anymatch = 0, result 
+    var anymatch = 0, result;
 
     if(flags_values.fixed_match == true){
       var result_fixed = lines[line_number-1].indexOf(pattern)
 
       if(result_fixed >= 0){
-    	if(anymatch == 0){
-		  matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""}
-		  matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1]
-		  matched_content[filename]['matched'][line_number]['match_value'] = pattern
-		  matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed)
-		}
 
-	    else{
-	      matched_content[filename]['matched'][line_number]['match_value'] = pattern    
-	      matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed)
-	    }
+    	  if(anymatch == 0){
+          matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""}
+          matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1]
+          matched_content[filename]['matched'][line_number]['match_value'] = pattern
+          matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed)
+        }
 
-	    anymatch = 1
+        else{
+          matched_content[filename]['matched'][line_number]['match_value'] = pattern    
+          matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed)
+        }
+
+      anymatch = 1
       }
     }
 
     else{
-	  while ( (result = myRegexp.exec(lines[line_number-1]))){
+      while ( (result = myRegexp.exec(lines[line_number-1]))){
 	      
-	    if(anymatch == 0){
-	      matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""}
-	      matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1]
-	      matched_content[filename]['matched'][line_number]['match_value'] = result[0]
-	      matched_content[filename]['matched'][line_number]['indexes'].push(result.index)
-	    }
+        if(anymatch == 0){
+          matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""}
+          matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1]
+          matched_content[filename]['matched'][line_number]['match_value'] = result[0]
+          matched_content[filename]['matched'][line_number]['indexes'].push(result.index)
+        }
 
-	    else{
-	      matched_content[filename]['matched'][line_number]['match_value'] = result[0]
-	      matched_content[filename]['matched'][line_number]['indexes'].push(result.index)
-	    }
-
-	    anymatch = 1
-
+        else{
+          matched_content[filename]['matched'][line_number]['match_value'] = result[0]
+          matched_content[filename]['matched'][line_number]['indexes'].push(result.index)
+        }
+      
+      anymatch = 1;
 	  }
 	}
 
@@ -531,19 +531,19 @@ function main(){
   }
 
   for(var i=0; i<commandArguments.length; i++){
-  	var this_argument = commandArguments[i];
+    var this_argument = commandArguments[i];
 
-  	if(this_argument[0] == '-' ||
-  		(isNaN(this_argument[0])==false && flags_values.mcount) ||
-  		(isNaN(this_argument[0])==false && flags_values.bnum) ||
-  		(isNaN(this_argument[0])==false && flags_values.cnum) ||
-  		(isNaN(this_argument[0])==false && flags_values.anum) ){
+    if(this_argument[0] == '-' ||
+      (isNaN(this_argument[0])==false && flags_values.mcount) ||
+      (isNaN(this_argument[0])==false && flags_values.bnum) ||
+      (isNaN(this_argument[0])==false && flags_values.cnum) ||
+      (isNaN(this_argument[0])==false && flags_values.anum) ){
 
-  	  arg_index++;
-  	}
+      arg_index++;
+    }
 
-  	else
-  		break;
+    else
+      break;
   }
 
   var options_passed = commandArguments.slice(0, arg_index);
@@ -552,30 +552,30 @@ function main(){
 
   //check if mcount is specificied rightly or not
   if(flags_values.mcount && isNaN(flags_values.mcount)==true){
-  	console_print("grep: invalid max count");
-  	process.exit(1);
+    console_print("grep: invalid max count");
+    process.exit(1);
   }
 
   if(flags_values.anum && isNaN(flags_values.anum)==true){
-  	console_print("grep: google: invalid context length argument");
-  	process.exit(1);
+    console_print("grep: google: invalid context length argument");
+    process.exit(1);
   }
 
   if(flags_values.bnum && isNaN(flags_values.bnum)==true){
-  	console_print("grep: google: invalid context length argument");
-  	process.exit(1);
+    console_print("grep: google: invalid context length argument");
+    process.exit(1);
   }
 
   //check -C, make changes to anum, bnum flag options flags
   if(flags_values.cnum){
 
-  	if(isNaN(flags_values.cnum)==true){
-	  console_print("grep: google: invalid context length argument");
-	  process.exit(1);
-	}
+    if(isNaN(flags_values.cnum)==true){
+      console_print("grep: google: invalid context length argument");
+      process.exit(1);
+    }
 
-  	flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : (flags_values.cnum);
-  	flags_values.anum = (flags_values.anum) ? (flags_values.anum) : (flags_values.cnum);
+    flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : (flags_values.cnum);
+    flags_values.anum = (flags_values.anum) ? (flags_values.anum) : (flags_values.cnum);
   }
 
 
@@ -592,19 +592,19 @@ function main(){
 
   //for all the files
   for(var ind=0; ind<commandArguments.length; ++ind){
-  	var file = commandArguments[ind]
+    var file = commandArguments[ind]
 
-  	if(fs.existsSync(commandArguments[ind]) == false){
-  	  //show file name if suppress warning is there with more than one file
-  	  flags_values.hfilename = true;
+    if(fs.existsSync(commandArguments[ind]) == false){
+      //show file name if suppress warning is there with more than one file
+      flags_values.hfilename = true;
   	  
-  	  if(!flags_values.suppress_file){
-  	    console_print("grep: "+ commandArguments[ind] +": No such file or directory")
-  	  }
-  	  continue;
-  	}
+      if(!flags_values.suppress_file){
+        console_print("grep: "+ commandArguments[ind] +": No such file or directory")
+      }
+      continue;
+    }
 
-  	if((fs.lstatSync(file).isDirectory())){
+    if((fs.lstatSync(file).isDirectory())){
       inputfiles['dirs'].push(file)
 
       if(flags_values.recur == true || flags_values.rrecur == true){
