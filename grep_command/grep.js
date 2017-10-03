@@ -582,7 +582,7 @@ const main = function main_function_to_be_called(){
   let commandArguments = process.argv.slice(2);
   let arg_index = 0;
 
-  if(commandArguments.length < 2){
+  if(commandArguments.length == 0){
     call_help();
   }
 
@@ -609,6 +609,23 @@ const main = function main_function_to_be_called(){
   let options_passed = commandArguments.slice(0, arg_index);
   let pattern = commandArguments[arg_index].toString();
   commandArguments = commandArguments.slice(arg_index+1,commandArguments.length);
+  
+  //check if no file is mentioned
+  if(commandArguments.length == 0){
+  	let flags = "";
+  	process.stdin.setEncoding('utf8');
+
+  	if(flags_values.ignore == true)
+  	  flags += "i";
+
+    process.stdin.on('readable', () => {
+      const text = process.stdin.read();
+      let myRegexp = new RegExp(pattern, flags);  
+      result = myRegexp.exec(text);
+      if(result)
+        process.stdout.write(`${text}`)    
+    });
+  }
 
   //check if mcount is specificied rightly or not
   if(flags_values.mcount && isNaN(flags_values.mcount)==true){
