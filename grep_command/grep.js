@@ -659,48 +659,48 @@ function main(){
       flags_values.hfilename = true;
   	  
       if(!flags_values.suppress_file){
-        console_print("grep: "+ commandArguments[ind] +": No such file or directory")
+        console_print(`grep: ${commandArguments[ind]}: No such file or directory`);
       }
       continue;
     }
 
     if((fs.lstatSync(file).isDirectory())){
-      inputfiles['dirs'].push(file)
+      inputfiles['dirs'].push(file);
 
       if(flags_values.recur == true || flags_values.rrecur == true){
         flags_values.hfilename = true
-        inputfiles['files'] = [].concat(walkSync(file,inputfiles['files']))
+        inputfiles['files'] = [].concat(walkSync(file,inputfiles['files']));
       }
 
     }
 
     else{
-      inputfiles['files'].push(file)
+      inputfiles['files'].push(file);
     }
 
   }
 
-  count_files = inputfiles['files'].length
+  count_files = inputfiles['files'].length;
 
   if(count_files > 1){
-    flags_values.hfilename = true
+    flags_values.hfilename = true;
   }
 
-  inputfiles['files'].sort()
+  inputfiles['files'].sort();
 
   for(let i=0; i<count_files; i++){
-    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files)
+    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files);
   }
 
-  inputfiles['dirs'].sort()
+  inputfiles['dirs'].sort();
 
   if(!flags_values.recur && !flags_values.rrecur){
 
     for(let i=0; i<inputfiles['dirs'].length; i++){
-      console_print('grep: ' + inputfiles['dirs'][i] + ": Is a directory")
+      console_print(`grep: ${inputfiles['dirs'][i]}: Is a directory`);
     }
   }
 }
 
 //calling the main function to start the execution
-main()  
+main();
