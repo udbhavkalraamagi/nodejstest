@@ -45,9 +45,9 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
   let tab_flag = 0;
 
   if (
-  	  flags_values.tab_stop == true && 
+      flags_values.tab_stop == true && 
       (flags_values.hfilename || flags_values.index || flags_values.lineno)
-      )
+     )
     tab_flag = 1;
 
   //global add here
@@ -355,9 +355,9 @@ const print_the_information = function show_the_information (matched_content, fl
   let filename_show_always = 0;
   
   if(
-  	count_files > 0 
-  	|| flags_values.hfilename
-  	){
+     count_files > 0 
+     || flags_values.hfilename
+    ){
     filename_show_always = 1;
   }
 
@@ -432,9 +432,9 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
   let local_flags = "g";
 
   if(
-  	flags_values.ignore == true
-  	|| flags_values.yignore == true
-  	){
+     flags_values.ignore == true
+     || flags_values.yignore == true
+    ){
     local_flags += "i";
   }
 
@@ -452,8 +452,8 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
     }
 
     if(
-      flags_values.linematch == true
-      || flags_values.fixed_match == true
+       flags_values.linematch == true
+       || flags_values.fixed_match == true
       )
       myRegexp = new RegExp("^"+pattern+"$", local_flags);
 
@@ -582,12 +582,13 @@ const main = function main_function_to_be_called(){
   for(let i=0; i<commandArguments.length; i++){
     let this_argument = commandArguments[i];
 
-    if(this_argument[0] == '-' ||
-      (isNaN(this_argument[0])==false && flags_values.mcount) ||
-      (isNaN(this_argument[0])==false && flags_values.bnum) ||
-      (isNaN(this_argument[0])==false && flags_values.cnum) ||
-      (isNaN(this_argument[0])==false && flags_values.anum) ){
-
+    if(
+       this_argument[0] == '-'
+       || (isNaN(this_argument[0])==false && flags_values.mcount)
+       || (isNaN(this_argument[0])==false && flags_values.bnum)
+       || (isNaN(this_argument[0])==false && flags_values.cnum)
+       || (isNaN(this_argument[0])==false && flags_values.anum)
+      ){
       arg_index += 1;
     } else{
       break;
@@ -618,25 +619,25 @@ const main = function main_function_to_be_called(){
 
   //check if mcount is specificied rightly or not
   if(
-  	flags_values.mcount
-  	&& isNaN(flags_values.mcount)==true
-  	){
+     flags_values.mcount
+     && isNaN(flags_values.mcount)==true
+    ){
     console_print("grep: invalid max count");
     process.exit(1);
   }
 
   if(
-  	flags_values.anum
-  	&& isNaN(flags_values.anum)==true
-  	){
+     flags_values.anum
+     && isNaN(flags_values.anum)==true
+    ){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
   }
 
   if(
-  	flags_values.bnum
-  	&& isNaN(flags_values.bnum)==true
-  	){
+     flags_values.bnum
+     && isNaN(flags_values.bnum)==true
+    ){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
   }
@@ -659,8 +660,8 @@ const main = function main_function_to_be_called(){
 
   // if no argument is specified for recursive option
   if(
-  	(flags_values.recur == true || flags_values.rrecur == true)
-  	&& commandArguments.length == 0){
+     (flags_values.recur == true || flags_values.rrecur == true)
+     && commandArguments.length == 0){
     commandArguments = ['.'];
   }
 
@@ -709,10 +710,10 @@ const main = function main_function_to_be_called(){
   inputfiles['dirs'].sort();
 
   if( 
-  	!flags_values.recur
-  	&& !flags_values.rrecur
-  	){
-
+     !flags_values.recur
+     && !flags_values.rrecur
+    ){
+  	
     for(let i=0; i<inputfiles['dirs'].length; i++){
       console_print(`grep: ${inputfiles['dirs'][i]}: Is a directory`);
     }
