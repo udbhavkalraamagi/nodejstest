@@ -4,7 +4,6 @@
 const fs = require('fs');
 const path = require('path');
 const isValid = require('is-valid-path');
-// let options = require('options-parser');
 const commandLineArgs = require('command-line-args');
 
 let hash = {};
