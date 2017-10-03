@@ -140,14 +140,14 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
     if(flags_values.anum)
       size_global_abnum['global_min_anum'] = flags_values.anum;
     if(flags_values.bnum)
-  	  size_global_abnum['global_min_bnum'] = flags_values.bnum
+      size_global_abnum['global_min_bnum'] = flags_values.bnum
 
-  	var string_to_print = "", prior_string_print = {}, after_string_print = {};
+    var string_to_print = "", prior_string_print = {}, after_string_print = {};
 
-  	//if mcount is set and we have reached the point of lines' count
-  	if(flags_values.mcount && line_printed_count == flags_values.mcount){
-  	  break;
-  	}
+    //if mcount is set and we have reached the point of lines' count
+    if(flags_values.mcount && line_printed_count == flags_values.mcount){
+      break;
+    }
 
     //to show the filename
     if(filename_show_always == 1){
@@ -222,8 +222,8 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
         print_before += prior_string_print[current_key][key_with_index_prev[current_key]]
     	key_with_index_prev[current_key]++;
 
-	    if(key_with_index_prev[current_key] >= prior_string_print[current_key].length)
-	      over = 1;
+      if(key_with_index_prev[current_key] >= prior_string_print[current_key].length)
+        over = 1;
       }
     
       print_before += '\n'
@@ -243,8 +243,8 @@ function loop_over_content(structure, file, flags_values, matched_unmatched, fil
         print_after += after_string_print[current_key][key_with_index_after[current_key]]
     	key_with_index_after[current_key]++;
 
-	    if(key_with_index_after[current_key] >= after_string_print[current_key].length)
-	      over = 1;
+      if(key_with_index_after[current_key] >= after_string_print[current_key].length)
+        over = 1;
       }
 
       print_after += '\n'
@@ -340,9 +340,9 @@ function print_the_information(matched_content, flags_values, count_files, lines
     }
 	
     else{
-    if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
-      Object.keys(matched_content[file]['matched']).length == 0)
-      console_print(file)
+      if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
+        Object.keys(matched_content[file]['matched']).length == 0)
+          console_print(file)
     }
 
     continue;
@@ -410,7 +410,7 @@ async function get_data_from_file(filename, pattern, flags_values, matched_conte
 
       if(result_fixed >= 0){
 
-    	  if(anymatch == 0){
+        if(anymatch == 0){
           matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""}
           matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1]
           matched_content[filename]['matched'][line_number]['match_value'] = pattern
