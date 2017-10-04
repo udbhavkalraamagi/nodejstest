@@ -168,9 +168,9 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
           || flags_values.index
           || flags_values.lineno
          )
-     )
-    
+     ){
     tab_flag = 1;
+  }
 
   //iterate over all the lines
   for(let lineno in structure){
