@@ -7,8 +7,8 @@ const isValid = require('is-valid-path');
 const commandLineArgs = require('command-line-args');
 
 let hash = {};
-let final_result_hash = {};
-let count_files = 0;
+let final_result_hash = {}; dirs_print_string = "";
+let count_files = 0; all_files_printed = 0;
 let inputfiles = { 'files' : [], 'dirs' : [] };
 
 // to print the values on console
@@ -26,6 +26,7 @@ const call_help = function printing_help_string(){
 const reading_the_file = function read_the_file_async(filename) {
   //returns a promise
   return new Promise(resolve => {
+  	//udbhav
     fs.readFile(filename,(err,data)=>{
       //either reject or resolve
       if(err){
@@ -438,8 +439,13 @@ const print_the_information = function show_the_information (matched_content, fl
   read it
   and store the necessary information and pass it one by one to the function to render the information
 */
-async function get_data_from_file(filename, pattern, flags_values, count_files){
-  let data = await reading_the_file(filename);
+async function get_data_from_file(filename, pattern, flags_values, count_files, read_from){
+  
+  let data = "";
+  if(read_from == 'file')
+    data = await reading_the_file(filename);
+  else if(read_from == 'stdin')
+  	data = filename;
 
   let matched_content = {};
   let local_flags = "g";
@@ -572,7 +578,8 @@ const main = function main_function_to_be_called(){
     { name: 'Ubinary', alias: 'U', type: Boolean },
     { name: 'womatch', alias: 'I', type: Boolean },
     { name: 'fixed_match', alias: 'F', type: Boolean},
-    { name: 'mcount', alias: 'm', type: Number }
+    { name: 'mcount', alias: 'm', type: Number },
+    { name: 'stdin', alias: 'p', type: Boolean }
   ]
 
   const flags_values = commandLineArgs(optionDefinitions);
@@ -583,6 +590,9 @@ const main = function main_function_to_be_called(){
  	
   let commandArguments = process.argv.slice(2);
   let arg_index = 0;
+
+  // console_print(flags_values)
+  // console_print(commandArguments)
 
   if(commandArguments.length == 0){
     call_help();
@@ -597,38 +607,52 @@ const main = function main_function_to_be_called(){
 
     if(
        this_argument[0] == '-'
-       || (Number.isNaN(this_argument[0])==false && flags_values.mcount)
-       || (Number.isNaN(this_argument[0])==false && flags_values.bnum)
-       || (Number.isNaN(this_argument[0])==false && flags_values.cnum)
-       || (Number.isNaN(this_argument[0])==false && flags_values.anum)
+       || (isNaN(this_argument)==false && flags_values.mcount)
+       || (isNaN(this_argument)==false && flags_values.bnum)
+       || (isNaN(this_argument)==false && flags_values.cnum)
+       || (isNaN(this_argument)==false && flags_values.anum)
       ){
       arg_index += 1;
     } else{
       break;
     }
   }
-
+ 
   let options_passed = commandArguments.slice(0, arg_index);
   let pattern = commandArguments[arg_index].toString();
   commandArguments = commandArguments.slice(arg_index+1,commandArguments.length);
-  
+
   //check if no file is mentioned
   if(commandArguments.length == 0){
-    
-    let flags = "g";
+
+    let data = "", flags = "";
     process.stdin.setEncoding('utf8');
 
     if(flags_values.ignore == true)
       flags += "i";
 
-    process.stdin.on('readable', () => {
-      const text = process.stdin.read();
-      let myRegexp = new RegExp(pattern, flags);  
-      result = myRegexp.exec(text);
-      if(result)
-        process.stdout.write(`${text}`)    
-    });
+    if(flags_values.stdin == true){
+      process.stdin.on('data', function(chunk) {
+	    let myRegexp = new RegExp(pattern, flags);  
+	    result = myRegexp.exec(chunk);
+	    if(result)
+	      process.stdout.write(`${chunk}`)
+     });
+
+    } else{
+      
+        process.stdin.on('data', function(chunk) {
+          data += chunk;
+        });
+
+        process.stdin.on('end', function() {
+          flags_values.hnofilename = false;
+          get_data_from_file(data, pattern, flags_values, 0, 'stdin');
+          return;
+        });
+     }//end of else
   }
+  //end of if (length==0)
 
   //check if mcount is specificied rightly or not
   if(
@@ -722,8 +746,10 @@ const main = function main_function_to_be_called(){
   inputfiles['files'].sort();
 
   for(let i=0; i<count_files; i++){
-    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files);
+    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file');
   }
+
+  
 
   inputfiles['dirs'].sort();
 
