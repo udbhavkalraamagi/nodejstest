@@ -175,7 +175,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
   //iterate over all the lines
   for(let lineno in structure){
 
-    let size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 }
+    let size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 };
 
     if(flags_values.anum)
       size_global_abnum['global_min_anum'] = flags_values.anum;
