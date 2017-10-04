@@ -161,7 +161,15 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
   // for mcount
   let line_printed_count = 0;
   let tab_flag = 0;
-  if (flags_values.tab_stop == true && (flags_values.hfilename || flags_values.index || flags_values.lineno))
+  if (
+      flags_values.tab_stop == true
+      && (
+          flags_values.hfilename
+          || flags_values.index
+          || flags_values.lineno
+         )
+     )
+    
     tab_flag = 1;
 
   //iterate over all the lines
