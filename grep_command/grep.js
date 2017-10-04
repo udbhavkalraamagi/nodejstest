@@ -647,6 +647,7 @@ const main = function main_function_to_be_called(){
     process.exit(1);
   }
 
+  //issue with the type of -B value
   if(
      flags_values.bnum
      && Number.isNaN(flags_values.bnum)==true
