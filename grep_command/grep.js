@@ -9,7 +9,7 @@ const commandLineArgs = require('command-line-args');
 let hash = {};
 let final_result_hash = {};
 let count_files = 0;
-let inputfiles = {'files' : [], 'dirs' : [] };
+let inputfiles = { 'files' : [], 'dirs' : [] };
 
 // to print the values on console
 const console_print = function print_to_console(to_print){
@@ -69,17 +69,18 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
         } else if(what_to_get == 'lineno'){
 
           if(tab_flag){
-            if(flags_values.index == true)
+
+            if(flags_values.index == true){
               prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"-\t");
-            else
+            } else
               prior_string_print['lineno'].push('\t'+current_line_offset_before.toString()+"\t-");
           } else
             prior_string_print['lineno'].push(current_line_offset_before.toString()+"-");
         } else if(what_to_get == 'index'){
 
-          if(tab_flag)
+          if(tab_flag){
             prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"\t-");
-          else
+          } else
             prior_string_print['index'].push(indexes_for_lines[current_line_offset_before]+"-");
         } else if(what_to_get == 'line'){
           prior_string_print['line'].push(lines[current_line_offset_before-1]);
@@ -111,9 +112,9 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
 
           if(tab_flag){
 
-            if(flags_values.index == true)
+            if(flags_values.index == true){
               after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"-\t");
-            else
+            } else
               after_string_print['lineno'].push('\t'+Number(current_line_offset).toString()+"\t-");
           } else
             after_string_print['lineno'].push(Number(current_line_offset).toString()+"-");
@@ -167,6 +168,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
   for(let lineno in structure){
 
     let size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 }
+
     if(flags_values.anum)
       size_global_abnum['global_min_anum'] = flags_values.anum;
     if(flags_values.bnum)
@@ -175,7 +177,10 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
     let string_to_print = "", prior_string_print = {}, after_string_print = {};
 
     //if mcount is set and we have reached the point of lines' count
-    if(flags_values.mcount && line_printed_count == flags_values.mcount){
+    if(
+      flags_values.mcount
+      && line_printed_count == flags_values.mcount
+      ){
       break;
     }
 
@@ -478,7 +483,7 @@ async function get_data_from_file(filename, pattern, flags_values, count_files){
       }
     } else{
       while (
-            (result = myRegexp.exec(lines[line_number-1]))
+             (result = myRegexp.exec(lines[line_number-1]))
             ){
 	      
         if(anymatch == 0){
@@ -660,8 +665,12 @@ const main = function main_function_to_be_called(){
 
   // if no argument is specified for recursive option
   if(
-     (flags_values.recur == true || flags_values.rrecur == true)
-     && commandArguments.length == 0){
+      (
+      	flags_values.recur == true
+        || flags_values.rrecur == true
+      )
+     && commandArguments.length == 0
+     ){
     commandArguments = ['.'];
   }
 
