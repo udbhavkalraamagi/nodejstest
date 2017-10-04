@@ -597,10 +597,10 @@ const main = function main_function_to_be_called(){
 
     if(
        this_argument[0] == '-'
-       || (isNaN(this_argument[0])==false && flags_values.mcount)
-       || (isNaN(this_argument[0])==false && flags_values.bnum)
-       || (isNaN(this_argument[0])==false && flags_values.cnum)
-       || (isNaN(this_argument[0])==false && flags_values.anum)
+       || (Number.isNaN(this_argument[0])==false && flags_values.mcount)
+       || (Number.isNaN(this_argument[0])==false && flags_values.bnum)
+       || (Number.isNaN(this_argument[0])==false && flags_values.cnum)
+       || (Number.isNaN(this_argument[0])==false && flags_values.anum)
       ){
       arg_index += 1;
     } else{
@@ -633,7 +633,7 @@ const main = function main_function_to_be_called(){
   //check if mcount is specificied rightly or not
   if(
      flags_values.mcount
-     && isNaN(flags_values.mcount)==true
+     && Number.isNaN(flags_values.mcount)==true
     ){
     console_print("grep: invalid max count");
     process.exit(1);
@@ -641,7 +641,7 @@ const main = function main_function_to_be_called(){
 
   if(
      flags_values.anum
-     && isNaN(flags_values.anum)==true
+     && Number.isNaN(flags_values.anum)==true
     ){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
@@ -649,7 +649,7 @@ const main = function main_function_to_be_called(){
 
   if(
      flags_values.bnum
-     && isNaN(flags_values.bnum)==true
+     && Number.isNaN(flags_values.bnum)==true
     ){
     console_print(`grep: ${pattern}: invalid context length argument`);
     process.exit(1);
@@ -658,7 +658,7 @@ const main = function main_function_to_be_called(){
   //check -C, make changes to anum, bnum flag options flags
   if(flags_values.cnum){
 
-    if(isNaN(flags_values.cnum)==true){
+    if(Number.isNaN(flags_values.cnum)==true){
       console_print(`grep: ${pattern}: invalid context length argument`);
       process.exit(1);
     }
