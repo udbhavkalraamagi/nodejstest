@@ -754,15 +754,11 @@ const main = function main_function_to_be_called(){
   }
 
   inputfiles['files'].sort();
-
   for(let i=0; i<count_files; i++){
     get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file', '');
   }
 
-  
-
   inputfiles['dirs'].sort();
-
   if( 
      !flags_values.recur
      && !flags_values.rrecur
