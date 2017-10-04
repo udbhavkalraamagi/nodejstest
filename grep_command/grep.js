@@ -153,7 +153,10 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
   //if -c
   if(flags_values.count == true){
     // console_print(file+":"+Object.keys(structure).length);
-    console_print(`${file} : ${Object.keys(structure).length}`);
+    if(flags_values.pipe == false)
+      console_print(`${file} : ${Object.keys(structure).length}`);
+    else
+      console_print(`${Object.keys(structure).length}`);
     return;
   }
 
@@ -202,7 +205,10 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
     //-c option
     if(flags_values.count == true){
-      console_print(`${string_to_print} ${Object.keys(structure).length}`);
+      if(flags_values.pipe == false)
+        console_print(`${string_to_print} : ${Object.keys(structure).length}`);
+      else
+        console_print(`${Object.keys(structure).length}`);
       return;
     }
 
@@ -439,13 +445,13 @@ const print_the_information = function show_the_information (matched_content, fl
   read it
   and store the necessary information and pass it one by one to the function to render the information
 */
-async function get_data_from_file(filename, pattern, flags_values, count_files, read_from){
+async function get_data_from_file(filename, pattern, flags_values, count_files, read_from, content){
   
   let data = "";
   if(read_from == 'file')
     data = await reading_the_file(filename);
   else if(read_from == 'stdin')
-  	data = filename;
+  	data = content;
 
   let matched_content = {};
   let local_flags = "g";
@@ -579,7 +585,8 @@ const main = function main_function_to_be_called(){
     { name: 'womatch', alias: 'I', type: Boolean },
     { name: 'fixed_match', alias: 'F', type: Boolean},
     { name: 'mcount', alias: 'm', type: Number },
-    { name: 'stdin', alias: 'p', type: Boolean }
+    { name: 'stdin', alias: 'p', type: Boolean },
+    { name: 'pipe', type: Boolean }
   ]
 
   const flags_values = commandLineArgs(optionDefinitions);
@@ -625,29 +632,32 @@ const main = function main_function_to_be_called(){
   //check if no file is mentioned
   if(commandArguments.length == 0){
 
-    let data = "", flags = "";
+    let content = "", flags = "";
     process.stdin.setEncoding('utf8');
 
     if(flags_values.ignore == true)
       flags += "i";
 
     if(flags_values.stdin == true){
+
       process.stdin.on('data', function(chunk) {
-	    let myRegexp = new RegExp(pattern, flags);  
-	    result = myRegexp.exec(chunk);
-	    if(result)
-	      process.stdout.write(`${chunk}`)
+        let myRegexp = new RegExp(pattern, flags);  
+        result = myRegexp.exec(chunk);
+        if(result)
+          process.stdout.write(`${chunk}`);
      });
 
     } else{
       
         process.stdin.on('data', function(chunk) {
-          data += chunk;
+          content += chunk;
+          // console_print('content :' + content);
         });
 
         process.stdin.on('end', function() {
           flags_values.hnofilename = false;
-          get_data_from_file(data, pattern, flags_values, 0, 'stdin');
+          flags_values.pipe = true;
+          get_data_from_file('', pattern, flags_values, 0, 'stdin', content);
           return;
         });
      }//end of else
@@ -746,7 +756,7 @@ const main = function main_function_to_be_called(){
   inputfiles['files'].sort();
 
   for(let i=0; i<count_files; i++){
-    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file');
+    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file', '');
   }
 
   
