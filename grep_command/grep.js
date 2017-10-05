@@ -22,7 +22,6 @@ const call_help = function printing_help_string(){
   process.exit(1);
 }
 
-
 const reading_the_file = function read_the_file_async(filename) {
   //returns a promise
   return new Promise(resolve => {
@@ -153,10 +152,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
   //if -c
   if(flags_values.count == true){
     // console_print(file+":"+Object.keys(structure).length);
-    if(flags_values.pipe == false)
-      console_print(`${file} : ${Object.keys(structure).length}`);
-    else
-      console_print(`${Object.keys(structure).length}`);
+    console_print(`${file} : ${Object.keys(structure).length}`);
     return;
   }
 
@@ -205,10 +201,7 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
     //-c option
     if(flags_values.count == true){
-      if(flags_values.pipe == false)
-        console_print(`${string_to_print} : ${Object.keys(structure).length}`);
-      else
-        console_print(`${Object.keys(structure).length}`);
+      console_print(`${string_to_print} ${Object.keys(structure).length}`);
       return;
     }
 
@@ -334,7 +327,6 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 /* for index option -b
    get the indexes or the byte offset of the lines which is required at a later point of time
 */
-
 const get_indexes = function indexes_fetch(matched_content_file){
   
   let indexes_for_lines = {};
@@ -370,36 +362,10 @@ const get_indexes = function indexes_fetch(matched_content_file){
 const print_the_information = function show_the_information (matched_content, flags_values, count_files, lines){
 
   // '0' for matched
-  let matched_unmatched = 0;
-  let filename_only = 0;
-  let filename_show_always = 0;
+  let matched_unmatched = ((flags_values.invert == true) || (flags_values.unmatchfiles == true)) ? 1 : 0;
+  let filename_only = ((flags_values.unmatchfiles == true) || (flags_values.matchfiles == true)) ? 1 : 0;
+  let filename_show_always = (flags_values.hnofilename == true) ? 0 : ((count_files > 1 || flags_values.hfilename) ? 1 : 0); 
   
-  if(
-     count_files > 0 
-     || flags_values.hfilename
-    ){
-    filename_show_always = 1;
-  }
-
-  if(flags_values.hnofilename == true){
-    filename_show_always = 0;
-  }
-
-	
-  if(flags_values.matchfiles == true){
-    matched_unmatched = 0;
-    filename_only = 1;
-  }
-
-  if(flags_values.unmatchfiles == true){
-    matched_unmatched = 1;
-    filename_only = 1;
-  }
-
-  if(flags_values.invert == true){
-    matched_unmatched = 1;
-  }
-
   // for all the files available in the database or input given
   for(let file in matched_content){
 
@@ -414,7 +380,7 @@ const print_the_information = function show_the_information (matched_content, fl
           console_print(file);
     }
 
-    continue;
+      continue;
     
     }
 
@@ -441,27 +407,38 @@ const print_the_information = function show_the_information (matched_content, fl
 } // end of function
 
 /*
+just to update the matched content according to the given conditions
+*/
+const update_content = function(anymatch, matched_content, filename, line_number, lines, pattern, matched_result){
+
+  if(anymatch == 0){
+    matched_content[filename]['matched'][line_number] = { 'line' : "" , 'indexes' : [], 'match_value': "" };
+    matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1];
+    matched_content[filename]['matched'][line_number]['match_value'] = pattern;
+    matched_content[filename]['matched'][line_number]['indexes'].push(matched_result);
+  } else{
+    matched_content[filename]['matched'][line_number]['match_value'] = pattern;
+    matched_content[filename]['matched'][line_number]['indexes'].push(matched_result);
+  }
+}
+
+/*
   get the data from the file 
   read it
   and store the necessary information and pass it one by one to the function to render the information
 */
-async function get_data_from_file(filename, pattern, flags_values, count_files, read_from, content){
+async function get_data_from_file(filename, pattern, flags_values, count_files, read_from){
   
   let data = "";
   if(read_from == 'file')
     data = await reading_the_file(filename);
   else if(read_from == 'stdin')
-  	data = content;
+  	data = filename;
 
   let matched_content = {};
   let local_flags = "g";
 
-  if(
-     flags_values.ignore == true
-     || flags_values.yignore == true
-    ){
-    local_flags += "i";
-  }
+  local_flags = (flags_values.ignore == true || flags_values.yignore == true) ? "gi" : "g";
 
   matched_content[filename] = {'matched' : {}, 'unmatched' : {}}
 
@@ -471,53 +448,31 @@ async function get_data_from_file(filename, pattern, flags_values, count_files, 
 
   for(let line_number=1; line_number<=lines_count; line_number++){
     let myRegexp = new RegExp(pattern, local_flags);
-
-    if(flags_values.exactword == true){
-      myRegexp = new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags);
-    }
-
-    if(
-       flags_values.linematch == true
-       || flags_values.fixed_match == true
-      )
-      myRegexp = new RegExp("^"+pattern+"$", local_flags);
+    
+    myRegexp = (flags_values.exactword == true)
+               ? (new RegExp("[^a-zA-Z0-9]"+pattern+"[^a-zA-Z0-9]|[^a-zA-Z0-9]"+pattern+"$|^"+pattern+"[^a-zA-Z0-9]|^"+pattern+"$",local_flags))
+               : (
+               	  (flags_values.linematch == true || flags_values.fixed_match == true)
+               	   ? (new RegExp("^"+pattern+"$", local_flags))
+               	   : myRegexp
+               	 ) ;
 
     let anymatch = 0, result;
 
     if(flags_values.fixed_match == true){
-      let result_fixed = lines[line_number-1].indexOf(pattern);
+      console_print(line_number + " line : "  +  lines[line_number-1])
+      let result_fixed = (lines[line_number-1]).indexOf(pattern);
+      console_print("fixed_match:" + flags_values.fixed_match + " result_fixed : " + result_fixed);
 
       if(result_fixed >= 0){
-
-        if(anymatch == 0){
-          matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""};
-          matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1];
-          matched_content[filename]['matched'][line_number]['match_value'] = pattern;
-          matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed);
-        } else{
-          matched_content[filename]['matched'][line_number]['match_value'] = pattern;
-          matched_content[filename]['matched'][line_number]['indexes'].push(result_fixed);
-        }
-
-      anymatch = 1;
+        update_content(anymatch, matched_content, filename, line_number, lines, pattern, result_fixed);
+        anymatch = 1;
       }
     } else{
-      while (
-             (result = myRegexp.exec(lines[line_number-1]))
-            ){
-	      
-        if(anymatch == 0){
-          matched_content[filename]['matched'][line_number] = {'line' : "" , 'indexes' : [], 'match_value': ""};
-          matched_content[filename]['matched'][line_number]['line'] = lines[line_number-1];
-          matched_content[filename]['matched'][line_number]['match_value'] = result[0];
-          matched_content[filename]['matched'][line_number]['indexes'].push(result.index);
-        } else{
-          matched_content[filename]['matched'][line_number]['match_value'] = result[0];
-          matched_content[filename]['matched'][line_number]['indexes'].push(result.index);
-        }
-      
-      anymatch = 1;
-	  }
+        while (result = myRegexp.exec(lines[line_number-1])){
+          update_content(anymatch, matched_content, filename, line_number, lines, result[0], result.index);
+          anymatch = 1;
+	    }
 	}
 
     //unmatched
@@ -529,7 +484,6 @@ async function get_data_from_file(filename, pattern, flags_values, count_files, 
 
   print_the_information(matched_content, flags_values, count_files ,lines);
 }
-
 
 //recursively get the files' names
 const walkSync = (dir, filelist = []) => {
@@ -585,8 +539,7 @@ const main = function main_function_to_be_called(){
     { name: 'womatch', alias: 'I', type: Boolean },
     { name: 'fixed_match', alias: 'F', type: Boolean},
     { name: 'mcount', alias: 'm', type: Number },
-    { name: 'stdin', alias: 'p', type: Boolean },
-    { name: 'pipe', type: Boolean }
+    { name: 'stdin', alias: 'p', type: Boolean }
   ]
 
   const flags_values = commandLineArgs(optionDefinitions);
@@ -632,7 +585,7 @@ const main = function main_function_to_be_called(){
   //check if no file is mentioned
   if(commandArguments.length == 0){
 
-    let content = "", flags = "";
+    let data = "", flags = "";
     process.stdin.setEncoding('utf8');
 
     if(flags_values.ignore == true)
@@ -644,20 +597,18 @@ const main = function main_function_to_be_called(){
         let myRegexp = new RegExp(pattern, flags);  
         result = myRegexp.exec(chunk);
         if(result)
-          process.stdout.write(`${chunk}`);
+          process.stdout.write(`${chunk}`)
      });
 
     } else{
       
         process.stdin.on('data', function(chunk) {
-          content += chunk;
-          // console_print('content :' + content);
+          data += chunk;
         });
 
         process.stdin.on('end', function() {
           flags_values.hnofilename = false;
-          flags_values.pipe = true;
-          get_data_from_file('', pattern, flags_values, 0, 'stdin', content);
+          get_data_from_file(data, pattern, flags_values, 0, 'stdin');
           return;
         });
      }//end of else
@@ -755,13 +706,13 @@ const main = function main_function_to_be_called(){
 
   inputfiles['files'].sort();
   for(let i=0; i<count_files; i++){
-    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file', '');
+    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file');
   }
-
+  
   inputfiles['dirs'].sort();
   if( 
      !flags_values.recur
-     && !flags_values.rrecur
+     && !flags_values.rrecur 
     ){
   	
     for(let i=0; i<inputfiles['dirs'].length; i++){
