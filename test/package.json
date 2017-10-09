@@ -1,0 +1,8 @@
+{
+ "test": "mocha test",
+ "dependencies": {
+  "chai": "^4.1.2",
+  "chai-spies": "^0.7.1",
+  "sinon": "^4.0.1"
+ }
+}
