@@ -3,12 +3,11 @@ let chai = require('chai')
 let assert = require('assert');
 chai.use(spies);
 
-let fs = require('fs')
+let fs = require('fs');
 let sinon = require("sinon");
 
 let should = chai.should()
   , expect = chai.expect;
-
 let hook;
 let filename = require('./grep');
 
@@ -56,7 +55,6 @@ describe('console functions', function(){
   });
 
 });
-
 
 describe('preparing the content:', function(){
 
@@ -142,7 +140,7 @@ describe('content iteration', function(){
   structure['1'] = { 'line' : 'testing line 1' };
   structure['2'] = { 'line' : 'testing line 2' };
 
-  it('-c count option', function(){
+  it('checking the count option (-c flag)', function(){
     
     flags_value['count'] = true;
     
@@ -164,22 +162,92 @@ describe('update content', function(){
   let matched_content = { 'file': 'anything.js' };
   matched_content[file] = { 'matched': {}, 'unmatched': {} };
 
-  it('for matched - updation of line:', function(){
+  it('for first time match - updation of line:', function(){
     anymatch = 0;
     filename.update_content(anymatch, matched_content, file, line_number+1, lines, pattern, matched_result);
     assert.equal(matched_content[file]['matched'][line_number+1]['line'], lines[line_number] );
   });
 
-  it('for matched - updation of matched_value:', function(){
+  it('for first time match - updation of matched_value:', function(){
     anymatch = 0;
     filename.update_content(anymatch, matched_content, file, line_number+1, lines, pattern, matched_result);
     assert.equal(matched_content[file]['matched'][line_number+1]['match_value'], pattern);
   });
 
-  it('for matched - updation of index:', function(){
+  it('for first time match - updation of indexes:', function(){
     anymatch = 0;
     filename.update_content(anymatch, matched_content, file, line_number+1, lines, pattern, matched_result);
     assert.equal(matched_content[file]['matched'][line_number+1]['indexes'], matched_result);
+  });
+
+  it('for already matched content- updation of indexes:', function(){
+    anymatch = 1;
+    matched_content[file]['matched'][line_number] = { 'indexes' : [], 'matched_value': "" };
+    filename.update_content(anymatch, matched_content, file, line_number, lines, pattern, matched_result);
+    assert.equal(matched_content[file]['matched'][line_number]['indexes'], matched_result);
+  });
+
+  it('for already matched content - updation of match_value:', function(){
+    anymatch = 1;
+    matched_content[file]['matched'][line_number] = { 'match_value': "", 'indexes' : [] };
+    filename.update_content(anymatch, matched_content, file, line_number, lines, pattern, matched_result);
+    assert.equal(matched_content[file]['matched'][line_number]['match_value'], pattern);
+  });
+  
+});
+
+
+describe("details for the adjacent lines", function(){
+
+  let method = sinon.spy(filename, 'prepare_string_print');
+  let flags_value = {  };
+  let lines = ["first line", "second line", "third line", "fourth line"]
+  let prior_string_print = {  }, after_string_print = {  };
+  let lineno = 3;
+  let file = "googleapi.js", what_to_get = 'filename';
+  let size_global_abnum = { 'global_min_bnum' : 100, 'global_min_anum' : 100 };
+
+  it("prepare string calling -B option (bnum)", function(){
+    flags_value = { 'bnum': 2 };
+    filename.get_details_for_adjacent_lines(flags_value, prior_string_print, after_string_print, file,
+      size_global_abnum, what_to_get, lineno, lines, {  } );
+    expect(Number(size_global_abnum['global_min_bnum'])).to.equal(2);
+  });
+
+  it("prepare string calling -A flag option (anum)", function(){
+    flags_value = { 'anum': 2 };
+    filename.get_details_for_adjacent_lines(flags_value, prior_string_print, after_string_print, file,
+      size_global_abnum, what_to_get, lineno-1, lines, {  } );
+    expect(Number(size_global_abnum['global_min_anum'])).to.equal(1);    
+  });
+
+});
+
+
+describe("fetching the index values for -b option", function(){
+  
+  let matched_content = {  };
+  let indexes_vals = {  };
+  
+  matched_content = { 'matched': {
+                         '1' : { 'line' : "a" },
+                         '2' : { 'line' : "b" },
+                         '4' : { 'line' : "d" } 
+                        },
+
+                        'unmatched': {
+                         '3' : { 'line' : "c" },
+                         '5' : { 'line' : "e" },
+                        }
+                      };
+
+  it("verify index values for matched content", function(){
+    indexes_vals = filename.get_indexes(matched_content);
+    expect(indexes_vals['4']).to.equal(6);
+  });
+
+  it("verify index values for unmatched content", function(){
+    expect(indexes_vals['3']).to.equal(4);
   });
 
 });
