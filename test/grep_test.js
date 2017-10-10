@@ -297,28 +297,4 @@ describe("result iteration:", function(){
     expect(hook.captured()).to.equal('first_file\n');
   });
 
-  
-  it("filename only for matched content:", function(){
-    flags_values = { 'unmatchfiles' : true }
-    filename.print_the_information(matched_content, flags_values, 2, []);
-    expect(hook.captured()).to.equal('second_file\n');
-  });
-
-  
-  it("for matched count option:", function(){
-
-    flags_values = { 'count' : true };
-    filename.print_the_information(matched_content, flags_values, 2, []);
-
-    let string_console = hook.captured().split('\n');
-
-    for(var index=0; index<string_console.length-1; index++){
-
-      let this_line = string_console[index].split(' ');
-      let this_structure = [ files[index], ':', Object.keys(matched_content[files[index]]['matched']).length.toString()];
-
-      assert(equals(this_structure, this_line));
-    }
-  });
-
 });
