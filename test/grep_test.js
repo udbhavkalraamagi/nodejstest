@@ -164,7 +164,7 @@ describe('update content', function(){
   let matched_content = { 'file': 'anything.js' };
   matched_content[file] = { 'matched': {}, 'unmatched': {} };
 
-  it('for matched - updation of line, index, matched_value:', function(){
+  it('for matched - updation of line:', function(){
     anymatch = 0;
     filename.update_content(anymatch, matched_content, file, line_number+1, lines, pattern, matched_result);
     assert.equal(matched_content[file]['matched'][line_number+1]['line'], lines[line_number] );
