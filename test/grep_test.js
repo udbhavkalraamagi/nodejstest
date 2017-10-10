@@ -1,8 +1,10 @@
+
 let chai = require('chai')
   , spies = require('chai-spies');
 let assert = require('assert');
 chai.use(spies);
 
+let equals = require('array-equal')
 let fs = require('fs');
 let sinon = require("sinon");
 
@@ -248,6 +250,75 @@ describe("fetching the index values for -b option", function(){
 
   it("verify index values for unmatched content", function(){
     expect(indexes_vals['3']).to.equal(4);
+  });
+
+});
+
+
+describe("result iteration:", function(){
+  
+  let files = ['first_file', 'second_file'];
+  let hook;
+  beforeEach(function(){
+    hook = captureStream(process.stdout);
+  });
+
+  afterEach(function(){
+    hook.unhook(); 
+  });
+
+  let flags_values = { 'matchfiles' : true };
+  let matched_content = { 'first_file' : {
+                             'matched' :  {
+                               '1' : { 'line' : "a" },
+                               '2' : { 'line' : "b" },
+                               '4' : { 'line' : "d" }
+                             },
+                             'unmatched' : {
+                               '3' : { 'line' : "c" },
+                               '5' : { 'line' : "e" },
+                             }
+                           },
+
+                           'second_file' : {
+                             'matched' :  {
+
+                             },
+                              
+                             'unmatched' : {
+                               '1' : { 'line' : "u" },
+                               '2' : { 'line' : "d" },
+                             }
+                           } 
+                        };
+
+  it("filename only for matched content:", function(){
+    filename.print_the_information(matched_content, flags_values, 2, []);
+    expect(hook.captured()).to.equal('first_file\n');
+  });
+
+  
+  it("filename only for matched content:", function(){
+    flags_values = { 'unmatchfiles' : true }
+    filename.print_the_information(matched_content, flags_values, 2, []);
+    expect(hook.captured()).to.equal('second_file\n');
+  });
+
+  
+  it("for matched count option:", function(){
+
+    flags_values = { 'count' : true };
+    filename.print_the_information(matched_content, flags_values, 2, []);
+
+    let string_console = hook.captured().split('\n');
+
+    for(var index=0; index<string_console.length-1; index++){
+
+      let this_line = string_console[index].split(' ');
+      let this_structure = [ files[index], ':', Object.keys(matched_content[files[index]]['matched']).length.toString()];
+
+      assert(equals(this_structure, this_line));
+    }
   });
 
 });
