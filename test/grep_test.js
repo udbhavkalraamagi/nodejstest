@@ -360,42 +360,42 @@ describe("initial check and creating files structure", function(){
   let flags_values = {  };
   
   it("should print error if -m option is invalid", function(){
-  	flags_values = { mcount : 'this is invalid' };
+    flags_values = { mcount : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: invalid max count\n');
   });
 
   it("should print error if -A option is invalid", function(){
-  	flags_values = { anum : 'this is invalid' };
+    flags_values = { anum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
 
   it("should print error if -B option is invalid", function(){
-  	flags_values = { bnum : 'this is invalid' };
+    flags_values = { bnum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
 
   it("should print error if -C option is invalid", function(){
-  	flags_values = { cnum : 'this is invalid' };
+    flags_values = { cnum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
 
   it("suppress_file option should test when invalid file name is given", function(){
-  	flags_values = { suppress_file : true };
+    flags_values = { suppress_file : true };
     let command_line_arguments = [ 'pattern', 'no_such_file_name' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), '');
   });
 
   it("should print if directory name is given", function(){
-  	flags_values = {  };
+    flags_values = {  };
     let command_line_arguments = [ 'pattern', 'node_modules' ];
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: node_modules: Is a directory\n');
