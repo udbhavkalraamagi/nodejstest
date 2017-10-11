@@ -84,13 +84,12 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
 
     while(bnum_copy > 0){
 
-      if(current_line_offset_before > 0){	
+      if(current_line_offset_before > 0){
         prepare_string_print(what_to_get, prior_string_print, tab_flag, flags_values, current_line_offset_before, indexes_for_lines, lines, file);
       }
       current_line_offset_before += 1;
       bnum_copy -= 1;
     }
-
     size_global_abnum['global_min_bnum'] = Math.min(size_global_abnum['global_min_bnum'], prior_string_print[what_to_get].length);
   }
   //end of bnum option
@@ -103,7 +102,6 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
     let current_line_offset = Number(lineno)+1;
 
     while(anum_copy > 0){
-  	  	
       if(Number(current_line_offset) < lines.length){
         prepare_string_print(what_to_get, after_string_print, tab_flag, flags_values, current_line_offset, indexes_for_lines, lines, file);
       }
@@ -115,7 +113,6 @@ const get_details_for_adjacent_lines = function details_ABC_option(flags_values,
   }
   //end of anum option
 }// end of function
-
 
 /*
 function to loop/iterate over the available content
@@ -138,7 +135,6 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
   //iterate over all the lines
   for(let lineno in structure){
-
     let size_global_abnum = { 'global_min_bnum' : 0, 'global_min_anum' : 0 };
 
     size_global_abnum['global_min_anum'] = (flags_values.anum) ? flags_values.anum : 0;
@@ -156,15 +152,12 @@ const loop_over_content = function iterate_over_data(structure, file, flags_valu
 
     //to show the filename
     if(filename_show_always == 1){
+      
+      // console.log('inside file show always main file');
+
       get_details_for_adjacent_lines(flags_values, prior_string_print, after_string_print, file,
            size_global_abnum, "filename", lineno, lines, indexes_for_lines);
       string_to_print = file + ":";
-    }
-
-    //-c option
-    if(flags_values.count == true){
-      console_print(`${string_to_print} ${Object.keys(structure).length}`);
-      return;
     }
 
     //-n options
@@ -336,7 +329,7 @@ const print_the_information = function show_the_information (matched_content, fl
       if(Object.keys(matched_content[file]['unmatched']).length > 0 && 
         Object.keys(matched_content[file]['matched']).length == 0)
           console_print(file);
-    }
+      }
 
       continue;
     
@@ -398,7 +391,7 @@ async function get_data_from_file(filename, pattern, flags_values, count_files, 
 
   local_flags = (flags_values.ignore == true || flags_values.yignore == true) ? "gi" : "g";
 
-  matched_content[filename] = {'matched' : {}, 'unmatched' : {}}
+  matched_content[filename] = {'matched' : {  } , 'unmatched' : {  } }
 
   let file_content = data.toString();
   let lines = file_content.split("\n");
@@ -418,11 +411,12 @@ async function get_data_from_file(filename, pattern, flags_values, count_files, 
     let anymatch = 0, result;
 
     if(flags_values.fixed_match == true){
-      console_print(line_number + " line : "  +  lines[line_number-1])
+      // console_print(line_number + " line : "  +  lines[line_number-1]);
       let result_fixed = (lines[line_number-1]).indexOf(pattern);
-      console_print("fixed_match:" + flags_values.fixed_match + " result_fixed : " + result_fixed);
+      // console_print("fixed_match:" + flags_values.fixed_match + " result_fixed : " + result_fixed);
 
       if(result_fixed >= 0){
+        // console.log('udb here in if result_fixed exisit s ');
         update_content(anymatch, matched_content, filename, line_number, lines, pattern, result_fixed);
         anymatch = 1;
       }
@@ -454,6 +448,167 @@ const walkSync = function(dir, filelist = []) {
   });
   return filelist;
 }
+
+const do_processing = function(flags_values, commandArguments){
+  
+  let arg_index = 0;
+
+  if(flags_values.help
+    || commandArguments.length == 0){
+    call_help();
+    process.exit(1);
+  }
+
+  if(flags_values.exitonmatch){
+    process.exit(0);
+  }
+
+  for(let i=0; i<commandArguments.length; i++){
+    let this_argument = commandArguments[i];
+
+    if(
+       this_argument[0] == '-'
+       || (isNaN(this_argument)==false && flags_values.mcount)
+       || (isNaN(this_argument)==false && flags_values.bnum)
+       || (isNaN(this_argument)==false && flags_values.cnum)
+       || (isNaN(this_argument)==false && flags_values.anum)
+      ){
+      arg_index += 1;
+    } else{
+      break;
+    }
+  }
+ 
+  let options_passed = commandArguments.slice(0, arg_index);
+  let pattern = commandArguments[arg_index].toString();
+  commandArguments = commandArguments.slice(arg_index+1,commandArguments.length);
+
+  // console.log(commandArguments);
+  // console.log(pattern);
+  
+  //check if no file is mentioned
+  if(commandArguments.length == 0){
+
+    let data = "", flags = "";
+    process.stdin.setEncoding('utf8');
+
+    if(flags_values.ignore == true)
+      flags += "i";
+
+    if(flags_values.stdin == true){
+
+      process.stdin.on('data', function(chunk) {
+        let myRegexp = new RegExp(pattern, flags);  
+        result = myRegexp.exec(chunk);
+        if(result)
+          process.stdout.write(`${chunk}`)
+     });
+
+    } else{
+      
+        process.stdin.on('data', function(chunk) {
+          data += chunk;
+        });
+
+        process.stdin.on('end', function() {
+          flags_values.hnofilename = false;
+          get_data_from_file(data, pattern, flags_values, 0, 'stdin');
+          return;
+        });
+     }//end of else
+  }
+  //end of if (length==0)
+
+  //check if mcount is specificied rightly or not
+  if(
+     flags_values.mcount
+     && isNaN(flags_values.mcount)==true
+    ){
+    console_print("grep: invalid max count");
+    // process.exit(1);
+    return;
+  }
+
+  if(
+     (flags_values.anum && isNaN(flags_values.anum)==true)
+     ||
+     (flags_values.bnum && isNaN(flags_values.bnum)==true)
+    ){
+    console_print(`grep: ${pattern}: invalid context length argument`);
+    // process.exit(1);
+    return;
+  }
+
+  //check -C, make changes to anum, bnum flag options flags
+  if(flags_values.cnum){
+
+    if(isNaN(flags_values.cnum)==true){
+      console_print(`grep: ${pattern}: invalid context length argument`);
+      // process.exit(1);
+      return;
+    }
+
+    flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : (flags_values.cnum);
+    flags_values.anum = (flags_values.anum) ? (flags_values.anum) : (flags_values.cnum);
+  }
+
+
+  flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : 0;
+  flags_values.anum = (flags_values.anum) ? (flags_values.anum) : 0;
+
+  // if no argument is specified for recursive option
+  commandArguments = ((flags_values.recur == true || flags_values.rrecur == true) && commandArguments.length == 0) ? ['.'] : commandArguments;
+  let files_count = commandArguments.length;
+  //for all the files
+  for(let ind=0; ind<commandArguments.length; ++ind){
+    let file = commandArguments[ind];
+
+    if(fs.existsSync(commandArguments[ind]) == false){
+      //show file name if suppress warning is there with more than one file
+      flags_values.hfilename = true;
+      
+      if(!flags_values.suppress_file){
+        console_print(`grep: ${commandArguments[ind]}: No such file or directory`);
+      }
+      continue;
+    }
+
+    if((fs.lstatSync(file).isDirectory())){
+      inputfiles['dirs'].push(file);
+
+      if(flags_values.recur == true || flags_values.rrecur == true){ 
+        flags_values.hfilename = true
+        inputfiles['files'] = [].concat(walkSync(file, inputfiles['files']));
+      }
+
+    } else{
+      inputfiles['files'].push(file);
+    }
+
+  }
+
+  count_files = inputfiles['files'].length;
+
+  if(count_files > 1){
+    flags_values.hfilename = true;
+  }
+
+  inputfiles['files'].sort();
+  for(let i=0; i<count_files; i++){
+    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file');
+  }
+  
+  inputfiles['dirs'].sort();
+  if( 
+     !flags_values.recur
+     && !flags_values.rrecur 
+    ){
+    
+    for(let i=0; i<inputfiles['dirs'].length; i++){
+      console_print(`grep: ${inputfiles['dirs'][i]}: Is a directory`);
+    }
+  }
+} // end of do_processing
 
 const main = function(){
 
@@ -502,171 +657,19 @@ const main = function(){
   ]
 
   const flags_values = commandLineArgs(optionDefinitions);
- 	
+ 	console_print(flags_values);
   let commandArguments = process.argv.slice(2);
-  let arg_index = 0;
 
-  // console_print('inside grep.js commandArguments : ' + commandArguments);
-  // console_print(flags_values);
+  do_processing(flags_values, commandArguments);
 
-  if(flags_values.help
-    || commandArguments.length == 0){
-    call_help();
-    process.exit(1);
-  }
-
-  if(flags_values.exitonmatch){
-    process.exit(0);
-  }
-
-  for(let i=0; i<commandArguments.length; i++){
-    let this_argument = commandArguments[i];
-
-    if(
-       this_argument[0] == '-'
-       || (isNaN(this_argument)==false && flags_values.mcount)
-       || (isNaN(this_argument)==false && flags_values.bnum)
-       || (isNaN(this_argument)==false && flags_values.cnum)
-       || (isNaN(this_argument)==false && flags_values.anum)
-      ){
-      arg_index += 1;
-    } else{
-      break;
-    }
-  }
- 
-  let options_passed = commandArguments.slice(0, arg_index);
-  let pattern = commandArguments[arg_index].toString();
-  commandArguments = commandArguments.slice(arg_index+1,commandArguments.length);
-
-  //check if no file is mentioned
-  if(commandArguments.length == 0){
-
-    let data = "", flags = "";
-    process.stdin.setEncoding('utf8');
-
-    if(flags_values.ignore == true)
-      flags += "i";
-
-    if(flags_values.stdin == true){
-
-      process.stdin.on('data', function(chunk) {
-        let myRegexp = new RegExp(pattern, flags);  
-        result = myRegexp.exec(chunk);
-        if(result)
-          process.stdout.write(`${chunk}`)
-     });
-
-    } else{
-      
-        process.stdin.on('data', function(chunk) {
-          data += chunk;
-        });
-
-        process.stdin.on('end', function() {
-          flags_values.hnofilename = false;
-          get_data_from_file(data, pattern, flags_values, 0, 'stdin');
-          return;
-        });
-     }//end of else
-  }
-  //end of if (length==0)
-
-  //check if mcount is specificied rightly or not
-  if(
-     flags_values.mcount
-     && Number.isNaN(flags_values.mcount)==true
-    ){
-    console_print("grep: invalid max count");
-    process.exit(1);
-  }
-
-  if(
-     (flags_values.anum && Number.isNaN(flags_values.anum)==true)
-     ||
-     (flags_values.bnum && Number.isNaN(flags_values.bnum)==true)
-    ){
-    console_print(`grep: ${pattern}: invalid context length argument`);
-    process.exit(1);
-  }
-
-  //check -C, make changes to anum, bnum flag options flags
-  if(flags_values.cnum){
-
-    if(Number.isNaN(flags_values.cnum)==true){
-      console_print(`grep: ${pattern}: invalid context length argument`);
-      process.exit(1);
-    }
-
-    flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : (flags_values.cnum);
-    flags_values.anum = (flags_values.anum) ? (flags_values.anum) : (flags_values.cnum);
-  }
-
-
-  flags_values.bnum = (flags_values.bnum) ? (flags_values.bnum) : 0;
-  flags_values.anum = (flags_values.anum) ? (flags_values.anum) : 0;
-
-  // if no argument is specified for recursive option
-  commandArguments = ((flags_values.recur == true || flags_values.rrecur == true) && commandArguments.length == 0) ? ['.'] : commandArguments;
-  let files_count = commandArguments.length;
-
-  //for all the files
-  for(let ind=0; ind<commandArguments.length; ++ind){
-    let file = commandArguments[ind];
-
-    if(fs.existsSync(commandArguments[ind]) == false){
-      //show file name if suppress warning is there with more than one file
-      flags_values.hfilename = true;
-  	  
-      if(!flags_values.suppress_file){
-        console_print(`grep: ${commandArguments[ind]}: No such file or directory`);
-      }
-      continue;
-    }
-
-    if((fs.lstatSync(file).isDirectory())){
-      inputfiles['dirs'].push(file);
-
-      if(flags_values.recur == true || flags_values.rrecur == true){ 
-        flags_values.hfilename = true
-        inputfiles['files'] = [].concat(walkSync(file, inputfiles['files']));
-      }
-
-    } else{
-      inputfiles['files'].push(file);
-    }
-
-  }
-
-  count_files = inputfiles['files'].length;
-
-  if(count_files > 1){
-    flags_values.hfilename = true;
-  }
-
-  inputfiles['files'].sort();
-  for(let i=0; i<count_files; i++){
-    get_data_from_file(inputfiles['files'][i], pattern, flags_values, count_files, 'file');
-  }
-  
-  inputfiles['dirs'].sort();
-  if( 
-     !flags_values.recur
-     && !flags_values.rrecur 
-    ){
-  	
-    for(let i=0; i<inputfiles['dirs'].length; i++){
-      console_print(`grep: ${inputfiles['dirs'][i]}: Is a directory`);
-    }
-  }
-}
+} // end of main
 
 //calling the main function to start the execution
 
 module.exports =
   {
   'main' : main,
-  'walkSync' : walkSync,'main' : main,
+  'walkSync' : walkSync,
   'console_print' : console_print,
   'call_help' : call_help,
   'loop_over_content' : loop_over_content,
@@ -675,7 +678,9 @@ module.exports =
   'get_indexes' : get_indexes,
   'print_the_information' : print_the_information,
   'update_content' : update_content,
-  'get_data_from_file' : get_data_from_file
+  'get_data_from_file' : get_data_from_file,
+  'reading_the_file' : reading_the_file,
+  'do_processing' : do_processing
   }
 
 main();
