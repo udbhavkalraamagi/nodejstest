@@ -1,3 +1,4 @@
+
 let chai = require('chai')
   , spies = require('chai-spies');
 let assert = require('assert');
@@ -12,19 +13,19 @@ let should = chai.should()
 let hook;
 let filename = require('./grep');
 
-const file_read = function (filename) {
+const file_read = function (filename) {  
   fs.readFile('test/package.json',(err,data)=>{
 
-    if(err){
-      console.log(err);
-    }
-    return (data);
+      if(err){
+        console.log(err);
+      }
+      return (data);
     });
 
 }
 
-function captureStream(stream){
 
+function captureStream(stream){
   let oldWrite = stream.write;
   let buf = '';
 
@@ -37,7 +38,6 @@ function captureStream(stream){
     unhook: function unhook(){
      stream.write = oldWrite;
     },
-
     captured: function(){
       return buf;
     }
@@ -66,14 +66,14 @@ describe('console functions', function(){
   });
 
   it('should print the test string to console using console_print method', function(){
-    filename.console_print("print this to console");
 
+    filename.console_print("print this to console");
     assert.equal(hook.captured(),"print this to console\n");
   });
 
 });
 
-describe('preparing the content to be used by -A, -B option', function(){
+describe('prepare the content to be used by -A, -B option', function(){
 
   let string_print = {};
   let tab_flag = 1;
@@ -85,6 +85,7 @@ describe('preparing the content to be used by -A, -B option', function(){
 
     filename.prepare_string_print('filename', string_print, tab_flag, flags_value, 0, {}, {}, file);
     assert.equal(string_print['filename'], file +'-');
+
   });
 
   it('should fetch the correct line number passed by the test', function(){
@@ -149,11 +150,12 @@ describe('preparing the content to be used by -A, -B option', function(){
 
 });
 
-describe("details for the adjacent lines", function(){
+describe("get details for the adjacent lines", function(){
 
   let method = sinon.spy(filename, 'prepare_string_print');
   let flags_value = {  };
   let lines = ["first line", "second line", "third line", "fourth line"]
+
   let prior_string_print = {  }, after_string_print = {  };
   let lineno = 3;
   let file = "googleapi.js", what_to_get = 'filename';
@@ -195,12 +197,11 @@ describe('loop over the content', function(){
 
   structure['1'] = { 'line' : 'first line' , 'match_value' : 'line' };
   structure['2'] = { 'line' : 'second line' , 'match_value' : 'line'};
-
   let indexes_vals = { 1 : 0, 2 : 15 };
   let lines = ['first line', 'second line', 'third line', '4th fourth line'];
 
   it('should show the matched content only', function(){
-    flags_values = { match_only : true };
+    flags_values = { match_only : true};
 
     filename.loop_over_content( structure, file, flags_values, {}, 0, indexes_vals, {  } );
     assert.equal(hook.captured(), structure['1']['match_value']+'\n'+structure['2']['match_value']+'\n');
@@ -239,6 +240,13 @@ describe('loop over the content', function(){
 
     filename.loop_over_content(structure, file, flags_value, {}, 0, indexes_vals, {});
     assert.equal(hook.captured(), `${structure['1']['line']}\n`);
+  });
+
+  it('should print correct lines if -A -B option is provided', function(){
+    flags_value = { lineno : true , anum : 2 , bnum : 1};
+
+    filename.loop_over_content(structure, file, flags_value, {}, 0, indexes_vals, lines);
+    assert.equal(hook.captured(), `1:${lines[0]}\n2-${lines[1]}\n3-${lines[2]}\n--\n1-${lines[0]}\n2:${lines[1]}\n3-${lines[2]}\n--\n`);
   });
  
 });
@@ -318,6 +326,7 @@ describe("fetching the byte index values for -b option", function(){
   });
 
   it("should verify index values for unmatched content with locally passed content", function(){
+
     expect(indexes_vals['3']).to.equal(4);
   });
 
@@ -376,15 +385,15 @@ describe("iterating over the result:", function(){
     expect(hook.captured()).to.equal('second_file\n');
   });
 
+  
   it("should pass the correct output to rendering method for -c option", function(){
-
     flags_values = { 'count' : true };
+
     filename.print_the_information(matched_content, flags_values, 2, []);
 
     let string_console = hook.captured().split('\n');
 
     for(var index=0; index<string_console.length-1; index++){
-
       let this_line = string_console[index].split(' ');
       let this_structure = [ files[index], ':', Object.keys(matched_content[files[index]]['matched']).length.toString()];
 
@@ -396,12 +405,39 @@ describe("iterating over the result:", function(){
 
 describe("matching the file content", function(){
   
-  it("should match the file content got from the async function with the locally called readFileSync", async function(){
+  it("match the file content got from the async function with the locally called readFileSync", async function(){
 
     let called_data = await filename.reading_the_file('/home/udbhav/testing/mocha_testing/test/package.json');   
     let local_data = fs.readFileSync('/home/udbhav/testing/mocha_testing/test/package.json','utf8');
 
     assert.equal(called_data.toString(), local_data);
+  });
+
+});
+
+describe("read the content from file or stdin", function(){
+
+  let hook;
+
+  beforeEach(function(){
+    hook = captureStream(process.stdout);
+  });
+
+  afterEach(function(){
+    hook.unhook(); 
+  });
+
+  let content = "scripts";
+  let pattern = "script";
+  let flags_values = {  };
+  let count_files = 1;
+  let read_from = 'stdin';
+
+  it("should show the passed content if -F (fixed match pattern is given)", async function(){
+    let flags_values = { 'fixed_match' : true };
+
+    filename.get_data_from_file(content, pattern, flags_values, count_files, read_from);
+    assert.equal(hook.captured(), content+'\n');
   });
 
 });
@@ -420,52 +456,52 @@ describe("initial check and creating files structure", function(){
 
   let flags_values = {  };
   
-  it("should print error if -m option is invalid", function(){
+  it("should print error message if -m option is invalid", function(){
     flags_values = { mcount : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
-
+    
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: invalid max count\n');
   });
 
-  it("should print error if -A option is invalid", function(){
+  it("should print error message if -A option is invalid", function(){
     flags_values = { anum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
-
+    
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
 
-  it("should print error if -B option is invalid", function(){
+  it("should print error message if -B option is invalid", function(){
     flags_values = { bnum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
-
+    
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
 
-  it("should print error if -C option is invalid", function(){
+  it("should print error message if -C option is invalid", function(){
     flags_values = { cnum : 'this is invalid' };
     let command_line_arguments = [ '-m', 'a', 'abc', '/home/udbhav/testing/mocha_testing/test/package.json' ];
-
+    
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: a: invalid context length argument\n');
   });
-
-  it("should suppress file option test when invalid file name is given", function(){
-    flags_values = { suppress_file : true };
-    let command_line_arguments = [ 'pattern', 'no_such_file_name' ];
-
-    filename.do_processing(flags_values, command_line_arguments);
-    assert.equal(hook.captured(), '');
-  });
-
-  it("should print if directory name is given", function(){
+  
+  it("should print the 'Is a directory' message if directory name is given", function(){
     flags_values = {  };
     let command_line_arguments = [ 'pattern', '/home/udbhav/testing/mocha_testing/test/node_modules' ];
-
+    
     filename.do_processing(flags_values, command_line_arguments);
     assert.equal(hook.captured(), 'grep: /home/udbhav/testing/mocha_testing/test/node_modules: Is a directory\n');
+  });
+
+  it("should suppress file name for -s option when invalid file name is given", function(){
+    flags_values = { suppress_file : true };
+    let command_line_arguments = [ 'pattern', 'no_such_file_name' ];
+    
+    filename.do_processing(flags_values, command_line_arguments);
+    assert.equal(hook.captured(), '');
   });
 
 });
